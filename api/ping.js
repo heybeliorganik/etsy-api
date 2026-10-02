@@ -9,9 +9,19 @@ export default async function handler(req, res) {
     const keystring = cleanSecret(process.env.ETSY_API_KEY);
     const sharedSecret = cleanSecret(process.env.ETSY_SHARED_SECRET);
 
+    const diagnostics = {
+      key_length: keystring.length,
+      secret_length: sharedSecret.length,
+      key_has_colon: keystring.includes(":"),
+      secret_has_colon: sharedSecret.includes(":"),
+      key_ascii_only: /^[\x20-\x7E]+$/.test(keystring),
+      secret_ascii_only: /^[\x20-\x7E]+$/.test(sharedSecret)
+    };
+
     if (!keystring || !sharedSecret) {
       return res.status(500).json({
         success: false,
+        diagnostics,
         error: "Etsy API bilgileri eksik."
       });
     }
@@ -38,6 +48,7 @@ export default async function handler(req, res) {
     return res.status(response.status).json({
       success: response.ok,
       status: response.status,
+      diagnostics,
       etsy_response: data
     });
 
