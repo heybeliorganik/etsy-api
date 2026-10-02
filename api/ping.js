@@ -1,12 +1,18 @@
+function cleanSecret(value) {
+  return String(value || "")
+    .trim()
+    .replace(/[\u2018\u2019\u201C\u201D\u200B-\u200D\uFEFF]/g, "");
+}
+
 export default async function handler(req, res) {
   try {
-    const keystring = process.env.ETSY_API_KEY;
-    const sharedSecret = process.env.ETSY_SHARED_SECRET;
+    const keystring = cleanSecret(process.env.ETSY_API_KEY);
+    const sharedSecret = cleanSecret(process.env.ETSY_SHARED_SECRET);
 
     if (!keystring || !sharedSecret) {
       return res.status(500).json({
         success: false,
-        error: "Etsy API bilgileri eksik.",
+        error: "Etsy API bilgileri eksik."
       });
     }
 
@@ -15,8 +21,8 @@ export default async function handler(req, res) {
       {
         method: "GET",
         headers: {
-          "x-api-key": `${keystring}:${sharedSecret}`,
-        },
+          "x-api-key": `${keystring}:${sharedSecret}`
+        }
       }
     );
 
@@ -32,13 +38,14 @@ export default async function handler(req, res) {
     return res.status(response.status).json({
       success: response.ok,
       status: response.status,
-      etsy_response: data,
+      etsy_response: data
     });
+
   } catch (error) {
     return res.status(500).json({
       success: false,
       error: "Ping testi başarısız.",
-      details: error.message,
+      details: error.message
     });
   }
 }
