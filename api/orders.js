@@ -1,33 +1,8 @@
-import { getValidEtsyAuth, etsyFetch } from "./etsyClient.js";
+import { etsyFetch } from "./etsyClient.js";
 
 export default async function handler(req, res) {
   try {
-    const { accessToken } = await getValidEtsyAuth();
-
-    const userId = accessToken.split(".")[0];
-
-    if (!userId || !/^\d+$/.test(userId)) {
-      return res.status(500).json({
-        success: false,
-        error: "Etsy user_id access token içinden alınamadı."
-      });
-    }
-
-    const shopResponse = await etsyFetch(
-      `/application/users/${userId}/shops`
-    );
-
-    const shopData = await shopResponse.json();
-
-    if (!shopResponse.ok || !shopData.shop_id) {
-      return res.status(shopResponse.status || 500).json({
-        success: false,
-        error: "Shop ID alınamadı.",
-        details: shopData
-      });
-    }
-
-    const shopId = shopData.shop_id;
+    const shopId = 67653092;
 
     const receiptsResponse = await etsyFetch(
       `/application/shops/${shopId}/receipts?limit=100`
@@ -38,6 +13,7 @@ export default async function handler(req, res) {
     if (!receiptsResponse.ok) {
       return res.status(receiptsResponse.status).json({
         success: false,
+        version: "orders-v2",
         error: "Etsy siparişleri alınamadı.",
         details: receiptsData
       });
@@ -62,6 +38,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
+      version: "orders-v2",
       shop_id: shopId,
       count: receiptsData.count,
       returned: orders.length,
@@ -71,6 +48,7 @@ export default async function handler(req, res) {
   } catch (error) {
     return res.status(500).json({
       success: false,
+      version: "orders-v2",
       error: "Sipariş işlemi başarısız.",
       details: error.message
     });
