@@ -1,9 +1,20 @@
-import { etsyFetch } from "./etsyClient.js";
+import { getValidEtsyAuth, etsyFetch } from "./etsyClient.js";
 
 export default async function handler(req, res) {
   try {
+    const { accessToken } = await getValidEtsyAuth();
+
+    const userId = accessToken.split(".")[0];
+
+    if (!userId || !/^\d+$/.test(userId)) {
+      return res.status(500).json({
+        success: false,
+        error: "Etsy user_id access token içinden alınamadı."
+      });
+    }
+
     const shopResponse = await etsyFetch(
-      "/application/users/me/shops"
+      `/application/users/${userId}/shops`
     );
 
     const shopData = await shopResponse.json();
