@@ -13,6 +13,7 @@ export default async function handler(req, res) {
       listing_id,
       property_id,
       value_id,
+      value_name,
       scale_id,
       confirm
     } = req.body || {};
@@ -27,6 +28,7 @@ export default async function handler(req, res) {
     const listingId = Number(listing_id);
     const propertyId = Number(property_id);
     const valueId = Number(value_id);
+    const valueName = String(value_name || "").trim();
 
     if (!listingId) {
       return res.status(400).json({
@@ -49,6 +51,13 @@ export default async function handler(req, res) {
       });
     }
 
+    if (!valueName) {
+      return res.status(400).json({
+        success: false,
+        error: "Gecerli value_name gerekli."
+      });
+    }
+
     const shopId = 67653092;
 
     const body = new URLSearchParams();
@@ -56,6 +65,11 @@ export default async function handler(req, res) {
     body.append(
       "value_ids[]",
       String(valueId)
+    );
+
+    body.append(
+      "values[]",
+      valueName
     );
 
     if (
@@ -99,6 +113,7 @@ export default async function handler(req, res) {
       listing_id: listingId,
       property_id: propertyId,
       value_id: valueId,
+      value_name: valueName,
       listing_property: data
     });
 
