@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heybeli Etsy Manager</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f6f6f6;
+      color: #222;
+    }
+
+    header {
+      background: white;
+      padding: 20px 30px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: #666;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .status {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .product {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .product h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+
+    .label {
+      font-weight: bold;
+      margin-top: 12px;
+    }
+
+    .value {
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      background: #eee;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #111;
+      color: white;
+      font-size: 14px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 12px;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+
+    .error {
+      color: #b00020;
+    }
+
+    .success {
+      color: #087f23;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Heybeli Etsy Manager</h1>
+    <p>SEO analizi, reklam önceliği ve onaylı Etsy güncellemeleri</p>
+  </header>
+
+  <main>
+    <div class="status" id="status">
+      Veriler yükleniyor...
+    </div>
+
+    <div id="products"></div>
+  </main>
+
+  <script>
+    async function loadStrategy() {
+      const status = document.getElementById("status");
+      const products = document.getElementById("products");
+
+      try {
+        const response = await fetch("/api/seoStrategy");
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.error || "SEO verileri alınamadı."
+          );
+        }
+
+        status.innerHTML =
+          "<strong>Sistem aktif.</strong><br>" +
+          "Analiz edilen ürün: " +
+          data.analyzed_count +
+          "<br>Onay bekleyen öneri: " +
+          data.pending_count;
+
+        products.innerHTML = "";
+
+        for (const item of data.pending_changes || []) {
+          const card = document.createElement("div");
+          card.className = "product";
+
+          card.innerHTML = `
+            <h2>
+              ${escapeHtml(item.color)} -
+              ${escapeHtml(item.product_type)}
+            </h2>
+
+            <div class="badges">
+              <span class="badge">
+                SEO: ${escapeHtml(item.seo_priority)}
+              </span>
+
+              <span class="badge">
+                Reklam: ${escapeHtml(item.ad_priority)}
+              </span>
+
+              <span class="badge">
+                Durum: ${escapeHtml(item.approval_status)}
+              </span>
+            </div>
+
+            <div class="label">Mevcut başlık</div>
+            <div class="value">
+              ${escapeHtml(item.current_title)}
+            </div>
+
+            <div class="label">Önerilen başlık</div>
+            <div class="value">
+              ${escapeHtml(item.suggested_title)}
+            </div>
+
+            <div class="label">Neden?</div>
+            <div class="value">
+              ${escapeHtml(item.reason)}
+            </div>
+
+            <div class="label">
+              Önerilen anahtar kelimeler
+            </div>
+
+            <div class="value">
+              ${(item.suggested_keywords || [])
+                .map(escapeHtml)
+                .join(", ")}
+            </div>
+
+            <button
+              onclick='approveChange(
+                ${JSON.stringify(item.listing_id)},
+                ${JSON.stringify(item.suggested_title)}
+              )'
+            >
+              Onayla ve Etsy'ye uygula
+            </button>
+
+            <div
+              class="result"
+              id="result-${item.listing_id}"
+            ></div>
+          `;
+
+          products.appendChild(card);
+        }
+
+      } catch (error) {
+        status.innerHTML =
+          '<span class="error">' +
+          escapeHtml(error.message) +
+          "</span>";
+      }
+    }
+
+    async function approveChange(
+      listingId,
+      suggestedTitle
+    ) {
+      const result =
+        document.getElementById(
+          "result-" + listingId
+        );
+
+      const confirmed = window.confirm(
+        "Bu başlık Etsy ürününde gerçekten değiştirilecek.\n\n" +
+        suggestedTitle +
+        "\n\nOnaylıyor musunuz?"
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      result.className = "result";
+      result.textContent = "Güncelleniyor...";
+
+      try {
+        const response = await fetch(
+          "/api/updateListing",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json; charset=utf-8"
+            },
+            body: JSON.stringify({
+              listing_id: Number(listingId),
+              title: suggestedTitle,
+              confirm: "YES"
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.error +
+            (data.details
+              ? " " + JSON.stringify(data.details)
+              : "")
+          );
+        }
+
+        result.className =
+          "result success";
+
+        result.textContent =
+          "Başarıyla Etsy'ye uygulandı.";
+
+        setTimeout(loadStrategy, 1500);
+
+      } catch (error) {
+        result.className =
+          "result error";
+
+        result.textContent =
+          "Hata: " + error.message;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    loadStrategy();
+  </script>
+</body>
+</html>
