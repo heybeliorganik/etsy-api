@@ -47,6 +47,38 @@ function getColor(title) {
   return "Unknown";
 }
 
+function getSize(title) {
+  const text = String(title || "");
+
+  const match = text.match(
+    /(\d{2,3})\s*[x×]\s*(\d{2,3})\s*cm/i
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  return `${match[1]} x ${match[2]} cm`;
+}
+
+function hasOekoTex(title) {
+  const t = normalize(title);
+
+  return (
+    t.includes("oeko-tex") ||
+    t.includes("oeko tex")
+  );
+}
+
+function hasBreathableKnit(title) {
+  const t = normalize(title);
+
+  return (
+    t.includes("breathable") ||
+    t.includes("knit")
+  );
+}
+
 function buildKeywords(productType, color) {
   if (productType === "CRIB_BEDDING") {
     return [
@@ -61,32 +93,98 @@ function buildKeywords(productType, color) {
   if (productType === "SET") {
     return [
       "organic baby blanket set",
-      "cotton baby gift set",
-      "newborn blanket set",
-      "baby shower gift",
-      "breathable baby blanket"
+      "cotton blanket set",
+      "baby blanket set",
+      "breathable cotton set",
+      "nursery blanket set"
     ];
   }
 
   return [
     "organic cotton baby blanket",
-    "breathable baby blanket",
-    "newborn baby blanket",
-    "baby shower gift",
+    "cotton baby blanket",
+    "breathable knit blanket",
+    "newborn cotton blanket",
     `${color.toLowerCase()} baby blanket`
   ];
 }
 
-function buildSuggestedTitle(productType, color) {
+function buildSuggestedTitle(
+  productType,
+  color,
+  currentTitle
+) {
+  const size = getSize(currentTitle);
+
+  const oekoText =
+    hasOekoTex(currentTitle)
+      ? "OEKO-TEX Certified"
+      : null;
+
+  const knitText =
+    hasBreathableKnit(currentTitle)
+      ? "Breathable Knit"
+      : null;
+
+  const parts = [];
+
   if (productType === "CRIB_BEDDING") {
-    return `${color} Organic Cotton Crib Bedding Set, Breathable Baby Bedding, OEKO-TEX Nursery Set`;
+    parts.push(
+      `${color} Organic Cotton Crib Bedding Set`
+    );
+
+    if (knitText) {
+      parts.push(knitText);
+    }
+
+    if (oekoText) {
+      parts.push(oekoText);
+    }
+
+    if (size) {
+      parts.push(size);
+    }
+
+    return parts.join(", ");
   }
 
   if (productType === "SET") {
-    return `${color} Organic Cotton Baby Blanket Set, Breathable Newborn Gift Set, OEKO-TEX Baby Shower Gift`;
+    parts.push(
+      `${color} Organic Cotton Baby Blanket Set`
+    );
+
+    if (knitText) {
+      parts.push(knitText);
+    }
+
+    if (oekoText) {
+      parts.push(oekoText);
+    }
+
+    if (size) {
+      parts.push(size);
+    }
+
+    return parts.join(", ");
   }
 
-  return `${color} Organic Cotton Baby Blanket, Breathable Newborn Blanket, OEKO-TEX Baby Shower Gift`;
+  parts.push(
+    `${color} Organic Cotton Baby Blanket`
+  );
+
+  if (knitText) {
+    parts.push(knitText);
+  }
+
+  if (oekoText) {
+    parts.push(oekoText);
+  }
+
+  if (size) {
+    parts.push(size);
+  }
+
+  return parts.join(", ");
 }
 
 function calculateScore(title, views, favorites) {
@@ -146,36 +244,45 @@ function buildStrategy(item) {
   let seoPriority = "MEDIUM";
   let adPriority = "MEDIUM";
   let action = "OPTIMIZE";
-  let reason = "Performance should continue to be monitored.";
+  let reason =
+    "Continue monitoring performance.";
 
   if (isWhiteBlanket) {
     seoPriority = "HIGH";
     adPriority = "HIGH";
     action = "PROTECT_AND_SCALE";
+
     reason =
-      "Historical best seller based on 5 years of sales experience. Keep as reference product and prioritize advertising tests.";
+      "Historical best seller based on 5 years of sales experience. Protect the product while testing carefully.";
   } else if (favorites >= 1 && views >= 5) {
     seoPriority = "HIGH";
     adPriority = "HIGH";
     action = "TEST_AND_SCALE";
+
     reason =
-      "Product is receiving both views and favorites. Improve SEO and test advertising.";
+      "The product receives both views and favorites. Strong candidate for controlled optimization and advertising.";
   } else if (views >= 5) {
     seoPriority = "HIGH";
     adPriority = "MEDIUM";
     action = "SEO_FIRST";
+
     reason =
-      "Product gets views but needs stronger conversion signals.";
+      "The product receives traffic but needs stronger conversion signals.";
   } else if (views <= 2 && favorites === 0) {
     seoPriority = "HIGH";
     adPriority = "LOW";
     action = "FIX_BEFORE_ADS";
+
     reason =
-      "Low traffic and no favorites. Improve title, keywords and main image before spending on ads.";
+      "Low traffic and no favorites. Improve product clarity and SEO before advertising.";
   }
 
   const suggestedTitle =
-    buildSuggestedTitle(productType, color);
+    buildSuggestedTitle(
+      productType,
+      color,
+      title
+    );
 
   const keywords =
     buildKeywords(productType, color);
@@ -189,24 +296,36 @@ function buildStrategy(item) {
     favorites,
     price,
     currency: item.currency_code,
+
     historical_reference: isWhiteBlanket,
+
     seo_priority: seoPriority,
     ad_priority: adPriority,
     action,
     reason,
+
     suggested_title: suggestedTitle,
+
     title_change_needed:
-      normalize(title) !== normalize(suggestedTitle),
+      normalize(title) !==
+      normalize(suggestedTitle),
+
     suggested_keywords: keywords,
+
     approval_required: true,
     approval_status: "PENDING",
+
+    title_strategy_version:
+      "ETSY_CLARITY_V2",
+
     url: item.url
   };
 }
 
 export default async function handler(req, res) {
   try {
-    const databaseUrl = process.env.DATABASE_URL;
+    const databaseUrl =
+      process.env.DATABASE_URL;
 
     if (!databaseUrl) {
       return res.status(500).json({
@@ -236,45 +355,68 @@ export default async function handler(req, res) {
     `;
 
     const analysis = listings.map((item) => {
-      const views = Number(item.views || 0);
-      const favorites = Number(item.num_favorers || 0);
+      const views =
+        Number(item.views || 0);
 
-      const scoreData = calculateScore(
-        item.title,
-        views,
-        favorites
-      );
+      const favorites =
+        Number(item.num_favorers || 0);
+
+      const scoreData =
+        calculateScore(
+          item.title,
+          views,
+          favorites
+        );
 
       let recommendation =
         "Takip etmeye devam et.";
 
-      if (scoreData.priority === "HIGH") {
+      if (
+        scoreData.priority === "HIGH"
+      ) {
         recommendation =
           "SEO ve reklam icin oncelikli urun.";
       }
 
-      if (scoreData.priority === "LOW") {
+      if (
+        scoreData.priority === "LOW"
+      ) {
         recommendation =
           "Baslik, anahtar kelime ve ana gorsel optimize edilmeli.";
       }
 
       return {
-        listing_id: item.listing_id,
-        title: item.title,
+        listing_id:
+          item.listing_id,
+
+        title:
+          item.title,
+
         views,
         favorites,
+
         historical_bonus:
           scoreData.historicalBonus,
-        score: scoreData.score,
-        priority: scoreData.priority,
+
+        score:
+          scoreData.score,
+
+        priority:
+          scoreData.priority,
+
         recommendation,
-        url: item.url
+
+        url:
+          item.url
       };
     });
 
-    analysis.sort((a, b) => b.score - a.score);
+    analysis.sort(
+      (a, b) => b.score - a.score
+    );
 
-    const strategy = listings.map(buildStrategy);
+    const strategy =
+      listings.map(buildStrategy);
 
     strategy.sort((a, b) => {
       const rank = {
@@ -294,34 +436,68 @@ export default async function handler(req, res) {
       return b.views - a.views;
     });
 
-    const pendingChanges = strategy.map((item) => ({
-      listing_id: item.listing_id,
-      current_title: item.current_title,
-      suggested_title: item.suggested_title,
-      title_change_needed:
-        item.title_change_needed,
-      product_type: item.product_type,
-      color: item.color,
-      views: item.views,
-      favorites: item.favorites,
-      seo_priority: item.seo_priority,
-      ad_priority: item.ad_priority,
-      action: item.action,
-      reason: item.reason,
-      suggested_keywords:
-        item.suggested_keywords,
-      historical_reference:
-        item.historical_reference,
-      approval_required: true,
-      approval_status: "PENDING",
-      url: item.url
-    }));
+    const pendingChanges =
+      strategy.map((item) => ({
+        listing_id:
+          item.listing_id,
+
+        current_title:
+          item.current_title,
+
+        suggested_title:
+          item.suggested_title,
+
+        title_change_needed:
+          item.title_change_needed,
+
+        product_type:
+          item.product_type,
+
+        color:
+          item.color,
+
+        views:
+          item.views,
+
+        favorites:
+          item.favorites,
+
+        seo_priority:
+          item.seo_priority,
+
+        ad_priority:
+          item.ad_priority,
+
+        action:
+          item.action,
+
+        reason:
+          item.reason,
+
+        suggested_keywords:
+          item.suggested_keywords,
+
+        historical_reference:
+          item.historical_reference,
+
+        title_strategy_version:
+          item.title_strategy_version,
+
+        approval_required: true,
+        approval_status: "PENDING",
+
+        url:
+          item.url
+      }));
 
     return res.status(200).json({
       success: true,
 
       system_mode:
         "ANALYSIS_STRATEGY_APPROVAL",
+
+      title_strategy_version:
+        "ETSY_CLARITY_V2",
 
       analyzed_count:
         analysis.length,
@@ -336,10 +512,9 @@ export default async function handler(req, res) {
         "White blanket is treated as the historical best seller based on 5 years of sales experience.",
 
       important_note:
-        "This endpoint does not automatically change Etsy listings. All listing changes still require approval through updateListing.",
+        "Titles now prioritize product clarity, material, construction, certification and size. Changes still require manual approval.",
 
       analysis,
-
       strategy,
 
       pending_changes:
@@ -351,7 +526,8 @@ export default async function handler(req, res) {
       success: false,
       error:
         "SEO strategy system failed.",
-      details: error.message
+      details:
+        error.message
     });
   }
 }
