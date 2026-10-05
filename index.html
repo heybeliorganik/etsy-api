@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Heybeli Etsy Manager V3.4</title>
+  <title>Heybeli Etsy Manager V4</title>
 
   <style>
     * {
@@ -28,7 +27,7 @@
     }
 
     .header-row {
-      max-width: 1250px;
+      max-width: 1300px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
@@ -38,32 +37,33 @@
 
     h1 {
       margin: 0;
-      font-size: 26px;
+      font-size: 28px;
     }
 
     .subtitle {
-      margin-top: 5px;
+      margin-top: 6px;
       color: #666;
       font-size: 14px;
     }
 
     .refresh-btn {
       border: 0;
-      border-radius: 8px;
-      padding: 10px 16px;
-      background: #222;
-      color: #fff;
+      border-radius: 9px;
+      padding: 12px 18px;
+      background: #111;
+      color: white;
       cursor: pointer;
+      font-weight: bold;
     }
 
     main {
-      max-width: 1250px;
+      max-width: 1300px;
       margin: 25px auto;
       padding: 0 20px 60px;
     }
 
     .summary {
-      background: #fff;
+      background: white;
       border: 1px solid #ddd;
       border-radius: 14px;
       padding: 20px;
@@ -72,7 +72,7 @@
 
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 12px;
       margin-top: 15px;
     }
@@ -84,30 +84,31 @@
     }
 
     .summary-number {
-      font-size: 24px;
+      font-size: 25px;
       font-weight: bold;
-      margin-top: 4px;
+      margin-top: 5px;
     }
 
     .small {
-      font-size: 13px;
-      color: #666;
+      font-size: 12px;
+      color: #777;
     }
 
-    .warning {
+    .notice {
+      margin-top: 15px;
       background: #fff8df;
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 12px;
+      padding: 13px;
+      border-radius: 9px;
+      line-height: 1.5;
       font-size: 13px;
     }
 
     .product {
-      background: #fff;
+      background: white;
       border: 1px solid #ddd;
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 20px;
+      border-radius: 15px;
+      padding: 22px;
+      margin-bottom: 22px;
     }
 
     .product-top {
@@ -115,56 +116,81 @@
       justify-content: space-between;
       gap: 15px;
       flex-wrap: wrap;
+      align-items: flex-start;
     }
 
     .product h2 {
       margin: 0 0 6px;
-      font-size: 21px;
+      font-size: 22px;
     }
 
     .listing-id {
+      color: #777;
+      font-size: 12px;
+    }
+
+    .decision-hero {
+      margin-top: 18px;
+      border-radius: 12px;
+      padding: 18px;
+      background: #f4f4f4;
+      border-left: 6px solid #222;
+    }
+
+    .decision-title {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 4px;
+    }
+
+    .decision-value {
+      font-size: 23px;
+      font-weight: bold;
+    }
+
+    .decision-reason {
+      margin-top: 10px;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .decision-box {
+      border: 1px solid #e1e1e1;
+      border-radius: 10px;
+      padding: 13px;
+      background: #fafafa;
+    }
+
+    .decision-box-label {
       font-size: 12px;
       color: #777;
     }
 
-    .badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 15px 0;
-    }
-
-    .badge {
-      padding: 7px 11px;
-      border-radius: 999px;
-      background: #eee;
-      font-size: 12px;
+    .decision-box-value {
+      margin-top: 5px;
+      font-size: 15px;
       font-weight: bold;
-    }
-
-    .badge-high {
-      background: #e7f5ea;
-    }
-
-    .badge-medium {
-      background: #fff4d6;
-    }
-
-    .badge-low {
-      background: #f7e5e5;
+      word-break: break-word;
     }
 
     .metrics {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
       gap: 10px;
-      margin: 15px 0 20px;
+      margin: 18px 0;
     }
 
     .metric {
-      border: 1px solid #e3e3e3;
+      border: 1px solid #e4e4e4;
       border-radius: 10px;
-      padding: 12px;
+      padding: 13px;
     }
 
     .metric-label {
@@ -174,30 +200,30 @@
 
     .metric-value {
       margin-top: 5px;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
     }
 
     .section {
-      margin-top: 18px;
+      margin-top: 20px;
     }
 
     .section-title {
-      font-size: 14px;
       font-weight: bold;
-      margin-bottom: 6px;
+      margin-bottom: 7px;
+      font-size: 14px;
     }
 
     .content-box {
       background: #f8f8f8;
       border-radius: 9px;
-      padding: 12px;
+      padding: 13px;
       line-height: 1.55;
       word-break: break-word;
     }
 
     .suggested {
-      border-left: 4px solid #222;
+      border-left: 4px solid #111;
     }
 
     .tags {
@@ -207,64 +233,89 @@
     }
 
     .tag {
+      padding: 6px 9px;
       background: #eee;
       border-radius: 999px;
-      padding: 6px 9px;
       font-size: 12px;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: #eee;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .high {
+      background: #e3f5e8;
+    }
+
+    .medium {
+      background: #fff2cb;
+    }
+
+    .low {
+      background: #f3e4e4;
+    }
+
+    .keep {
+      background: #e7f5ea;
+    }
+
+    .change {
+      background: #fff1cf;
     }
 
     .actions {
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 10px;
       margin-top: 20px;
     }
 
     button.action-btn {
       border: 0;
       border-radius: 8px;
-      padding: 11px 17px;
+      padding: 11px 16px;
       cursor: pointer;
       font-weight: bold;
     }
 
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
     .title-btn {
       background: #111;
-      color: #fff;
+      color: white;
     }
 
     .tag-btn {
       background: #f1641e;
-      color: #fff;
+      color: white;
     }
 
     .description-btn {
       background: #2f6fed;
-      color: #fff;
-    }
-
-    .attribute-btn {
-      background: #5f3dc4;
-      color: #fff;
-    }
-
-    .safe-attribute-btn {
-      background: #1f8f4e;
-      color: #fff;
-    }
-
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+      color: white;
     }
 
     .etsy-link {
       display: inline-block;
+      padding: 10px 16px;
       text-decoration: none;
       border: 1px solid #222;
-      color: #222;
       border-radius: 8px;
-      padding: 10px 16px;
+      color: #222;
     }
 
     .result {
@@ -281,60 +332,46 @@
       color: #b00020;
     }
 
-    .attribute-panel {
-      margin-top: 18px;
-      padding: 16px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      background: #fafafa;
-      display: none;
+    .protect {
+      border-left-color: #198754;
     }
 
-    .attribute-summary {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin-bottom: 15px;
+    .test-ads {
+      border-left-color: #6f42c1;
     }
 
-    .attribute-count {
-      background: #fff;
-      border: 1px solid #e2e2e2;
-      border-radius: 9px;
-      padding: 12px;
+    .improve-seo {
+      border-left-color: #f1641e;
     }
 
-    .attribute-group {
-      margin-top: 15px;
+    .review-image {
+      border-left-color: #dc9c00;
     }
 
-    .attribute-group h4 {
-      margin: 0 0 8px;
+    .wait-data {
+      border-left-color: #2f6fed;
     }
 
-    .attribute-item {
-      background: #fff;
-      border: 1px solid #e4e4e4;
-      border-radius: 9px;
-      padding: 11px;
-      margin-bottom: 8px;
-      line-height: 1.45;
+    .fix-before-ads {
+      border-left-color: #b00020;
     }
 
-    .safe-item {
-      border-left: 5px solid #219653;
-    }
+    @media (max-width: 650px) {
+      header {
+        padding: 16px;
+      }
 
-    .check-item {
-      border-left: 5px solid #f2c94c;
-    }
+      main {
+        padding: 0 12px 40px;
+      }
 
-    .leave-item {
-      border-left: 5px solid #999;
-    }
+      h1 {
+        font-size: 22px;
+      }
 
-    .current-item {
-      border-left: 5px solid #2f6fed;
+      .product {
+        padding: 16px;
+      }
     }
   </style>
 </head>
@@ -344,10 +381,10 @@
 <header>
   <div class="header-row">
     <div>
-      <h1>Heybeli Etsy Manager V3.4</h1>
+      <h1>Heybeli Etsy Manager V4</h1>
 
       <div class="subtitle">
-        Etsy canlı performansı + SEO + Trendyol dış pazar sinyali + güvenli attributes
+        Etsy karar motoru • SEO • Reklam • Başlık • 13 Tag • Açıklama
       </div>
     </div>
 
@@ -389,30 +426,124 @@ function priorityClass(value) {
     String(value || "")
       .toUpperCase();
 
-  if (v === "HIGH") {
-    return "badge-high";
+  if (v === "HIGH") return "high";
+  if (v === "MEDIUM") return "medium";
+  if (v === "LOW") return "low";
+
+  return "";
+}
+
+function decisionClass(action) {
+  const value =
+    String(action || "")
+      .toUpperCase();
+
+  if (value === "PROTECT") {
+    return "protect";
   }
 
-  if (v === "MEDIUM") {
-    return "badge-medium";
+  if (value === "TEST_ADS") {
+    return "test-ads";
   }
 
-  if (v === "LOW") {
-    return "badge-low";
+  if (value === "IMPROVE_SEO") {
+    return "improve-seo";
+  }
+
+  if (value === "REVIEW_IMAGE") {
+    return "review-image";
+  }
+
+  if (value === "WAIT_FOR_DATA") {
+    return "wait-data";
+  }
+
+  if (value === "FIX_BEFORE_ADS") {
+    return "fix-before-ads";
   }
 
   return "";
 }
 
+function decisionText(value) {
+  const v =
+    String(value || "")
+      .toUpperCase();
+
+  const map = {
+    PROTECT:
+      "İyi çalışan ürünü koru",
+
+    TEST_ADS:
+      "Kontrollü reklam testi",
+
+    IMPROVE_SEO:
+      "SEO'yu kontrollü geliştir",
+
+    REVIEW_IMAGE:
+      "Ana görseli ve tıklamayı incele",
+
+    WAIT_FOR_DATA:
+      "Veri topla ve bekle",
+
+    FIX_BEFORE_ADS:
+      "Reklamdan önce listing'i düzelt",
+
+    CONTROLLED_AD_TEST:
+      "Kontrollü reklam testi",
+
+    TEST_SMALL_BUDGET:
+      "Küçük bütçeyle test et",
+
+    DO_NOT_ADVERTISE_YET:
+      "Şimdilik reklam verme",
+
+    WAIT:
+      "Bekle",
+
+    KEEP:
+      "Koru",
+
+    ONLY_MINOR_CHANGES:
+      "Sadece küçük değişiklik",
+
+    IMPROVE_LIGHTLY:
+      "Hafif iyileştir",
+
+    IMPROVE:
+      "İyileştir",
+
+    PREPARE_CHANGES:
+      "Değişiklikleri hazırla",
+
+    REVIEW_AND_UPDATE:
+      "Kontrol et ve güncelle"
+  };
+
+  return map[v] || value || "-";
+}
+
+function yesNoChange(
+  changeNeeded
+) {
+  return changeNeeded
+    ? "Güncelleme öneriliyor"
+    : "Koru";
+}
+
 async function loadStrategy() {
   const summary =
-    document.getElementById("summary");
+    document.getElementById(
+      "summary"
+    );
 
   const products =
-    document.getElementById("products");
+    document.getElementById(
+      "products"
+    );
 
   summary.innerHTML =
-    "Veriler yükleniyor...";
+    "V4 karar motoru verileri yükleniyor...";
 
   products.innerHTML = "";
 
@@ -434,20 +565,21 @@ async function loadStrategy() {
     ) {
       throw new Error(
         data.error ||
-        "Strateji verileri alınamadı."
+        "V4 strateji verileri alınamadı."
       );
     }
 
     summary.innerHTML = `
+
       <strong>
-        Sistem aktif ✅
+        Heybeli Etsy V4 aktif ✅
       </strong>
 
       <div class="summary-grid">
 
         <div class="summary-box">
           <div class="small">
-            Strateji sürümü
+            Motor sürümü
           </div>
 
           <div>
@@ -495,17 +627,24 @@ async function loadStrategy() {
 
       </div>
 
-      <div class="warning">
-        Başlık, etiket ve SEO açıklama girişi ayrı ayrı onaylanır.
-        Attribute tarafında yalnızca güvenli olarak doğrulanan değerler
-        kullanıcı onayından sonra Etsy'ye uygulanır.
+      <div class="notice">
+        V4 karar motoru Etsy'nin gizli algoritmasını bildiğini iddia etmez.
+        Puanlar; mağazanın canlı verileri, görüntülenme, favori,
+        listing yaşı ve bizim kontrollü test kurallarımız kullanılarak
+        oluşturulan karar destek sistemidir.
+        Hiçbir başlık, tag veya açıklama otomatik değiştirilmez.
+        Son onay her zaman sende kalır.
       </div>
     `;
 
-    for (
-      const item
-      of data.pending_changes || []
-    ) {
+    const items =
+      Array.isArray(
+        data.pending_changes
+      )
+        ? data.pending_changes
+        : [];
+
+    for (const item of items) {
       renderProduct(item);
     }
 
@@ -542,13 +681,30 @@ function renderProduct(item) {
       ? item.suggested_tags
       : [];
 
+  const titleNeedsChange =
+    Boolean(
+      item.title_change_needed
+    );
+
+  const tagsNeedChange =
+    Boolean(
+      item.tags_change_needed
+    );
+
+  const descriptionNeedsChange =
+    Boolean(
+      item.description_change_needed
+    );
+
   card.innerHTML = `
 
     <div class="product-top">
 
       <div>
         <h2>
-          ${escapeHtml(item.color)}
+          ${escapeHtml(
+            item.color
+          )}
           -
           ${escapeHtml(
             item.product_type
@@ -563,79 +719,142 @@ function renderProduct(item) {
         </div>
       </div>
 
-      <div>
-        ${
-          item.external_market_signal ===
-          "HIGH"
-            ? '<span class="badge badge-high">Trendyol sinyali: HIGH</span>'
-            : '<span class="badge">Trendyol sinyali: UNKNOWN</span>'
-        }
+      <div class="badges">
+
+        <span class="badge ${priorityClass(
+          item.seo_priority
+        )}">
+          SEO:
+          ${escapeHtml(
+            item.seo_priority
+          )}
+        </span>
+
+        <span class="badge ${priorityClass(
+          item.ad_priority
+        )}">
+          Reklam:
+          ${escapeHtml(
+            item.ad_priority
+          )}
+        </span>
+
       </div>
 
     </div>
 
-    <div class="badges">
+    <div class="decision-hero ${decisionClass(
+      item.today_action
+    )}">
 
-      <span class="badge ${priorityClass(
-        item.seo_priority
-      )}">
-        SEO:
-        ${escapeHtml(
-          item.seo_priority
-        )}
-      </span>
+      <div class="decision-title">
+        BUGÜNKÜ ANA KARAR
+      </div>
 
-      <span class="badge ${priorityClass(
-        item.ad_priority
-      )}">
-        Reklam:
+      <div class="decision-value">
         ${escapeHtml(
-          item.ad_priority
+          item.today_action_label ||
+          decisionText(
+            item.today_action
+          )
         )}
-      </span>
+      </div>
 
-      <span class="badge">
-        Aksiyon:
+      <div class="decision-reason">
         ${escapeHtml(
-          item.action
+          item.reason
         )}
-      </span>
+      </div>
 
-      <span class="badge">
-        Durum:
-        ${escapeHtml(
-          item.approval_status
-        )}
-      </span>
+    </div>
+
+    <div class="decision-grid">
+
+      <div class="decision-box">
+        <div class="decision-box-label">
+          Reklam kararı
+        </div>
+
+        <div class="decision-box-value">
+          ${escapeHtml(
+            decisionText(
+              item.ad_decision
+            )
+          )}
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="decision-box-label">
+          SEO kararı
+        </div>
+
+        <div class="decision-box-value">
+          ${escapeHtml(
+            decisionText(
+              item.seo_decision
+            )
+          )}
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="decision-box-label">
+          Başlık
+        </div>
+
+        <div class="decision-box-value">
+          ${escapeHtml(
+            yesNoChange(
+              titleNeedsChange
+            )
+          )}
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="decision-box-label">
+          Tag
+        </div>
+
+        <div class="decision-box-value">
+          ${escapeHtml(
+            yesNoChange(
+              tagsNeedChange
+            )
+          )}
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="decision-box-label">
+          Açıklama
+        </div>
+
+        <div class="decision-box-value">
+          ${escapeHtml(
+            yesNoChange(
+              descriptionNeedsChange
+            )
+          )}
+        </div>
+      </div>
+
+      <div class="decision-box">
+        <div class="decision-box-label">
+          Sonraki değerlendirme
+        </div>
+
+        <div class="decision-box-value">
+          ${Number(
+            item.wait_days || 0
+          )} gün
+        </div>
+      </div>
 
     </div>
 
     <div class="metrics">
-
-      <div class="metric">
-        <div class="metric-label">
-          Etsy performans
-        </div>
-
-        <div class="metric-value">
-          ${Number(
-            item.etsy_performance_score ||
-            0
-          ).toFixed(1)}
-        </div>
-      </div>
-
-      <div class="metric">
-        <div class="metric-label">
-          Genel skor
-        </div>
-
-        <div class="metric-value">
-          ${Number(
-            item.overall_score || 0
-          ).toFixed(1)}
-        </div>
-      </div>
 
       <div class="metric">
         <div class="metric-label">
@@ -661,6 +880,47 @@ function renderProduct(item) {
         </div>
       </div>
 
+      <div class="metric">
+        <div class="metric-label">
+          Etsy performans
+        </div>
+
+        <div class="metric-value">
+          ${Number(
+            item.etsy_performance_score || 0
+          ).toFixed(1)}
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">
+          Genel skor
+        </div>
+
+        <div class="metric-value">
+          ${Number(
+            item.overall_score || 0
+          ).toFixed(1)}
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">
+          Yayında
+        </div>
+
+        <div class="metric-value">
+          ${
+            item.days_live === null ||
+            item.days_live === undefined
+              ? "-"
+              : Number(
+                  item.days_live
+                ) + " gün"
+          }
+        </div>
+      </div>
+
     </div>
 
     <div class="section">
@@ -677,7 +937,7 @@ function renderProduct(item) {
 
     <div class="section">
       <div class="section-title">
-        Önerilen Etsy başlığı
+        V4 önerilen başlık
       </div>
 
       <div class="content-box suggested">
@@ -689,19 +949,7 @@ function renderProduct(item) {
 
     <div class="section">
       <div class="section-title">
-        Neden?
-      </div>
-
-      <div class="content-box">
-        ${escapeHtml(
-          item.reason
-        )}
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">
-        Önerilen 13 Etsy etiketi
+        V4 önerilen 13 Etsy tag
       </div>
 
       <div class="tags">
@@ -717,7 +965,7 @@ function renderProduct(item) {
 
     <div class="section">
       <div class="section-title">
-        Önerilen açıklama girişi
+        V4 önerilen açıklama girişi
       </div>
 
       <div class="content-box suggested">
@@ -729,24 +977,14 @@ function renderProduct(item) {
 
     <div class="section">
       <div class="section-title">
-        Görsel aksiyonu
+        Ana görsel kararı
       </div>
 
       <div class="content-box">
         ${escapeHtml(
-          item.image_action
-        )}
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-title">
-        Etsy Attributes aksiyonu
-      </div>
-
-      <div class="content-box">
-        ${escapeHtml(
-          item.attributes_action
+          decisionText(
+            item.image_action
+          )
         )}
       </div>
     </div>
@@ -768,6 +1006,12 @@ function renderProduct(item) {
         ${escapeHtml(
           item.external_market_signal
         )}
+
+        <br><br>
+
+        ${escapeHtml(
+          item.external_market_reason
+        )}
       </div>
     </div>
 
@@ -776,29 +1020,37 @@ function renderProduct(item) {
       <button
         class="action-btn title-btn"
         id="title-${item.listing_id}"
+        ${titleNeedsChange ? "" : "disabled"}
       >
-        Başlığı Onayla ve Etsy'ye Uygula
+        ${
+          titleNeedsChange
+            ? "Başlığı Onayla ve Etsy'ye Uygula"
+            : "Başlığı Koru"
+        }
       </button>
 
       <button
         class="action-btn tag-btn"
         id="tags-${item.listing_id}"
+        ${tagsNeedChange ? "" : "disabled"}
       >
-        13 Etiketi Onayla ve Etsy'ye Uygula
+        ${
+          tagsNeedChange
+            ? "13 Tag'i Onayla ve Etsy'ye Uygula"
+            : "Tagleri Koru"
+        }
       </button>
 
       <button
         class="action-btn description-btn"
         id="description-${item.listing_id}"
+        ${descriptionNeedsChange ? "" : "disabled"}
       >
-        SEO Açıklama Girişini Onayla ve Etsy'ye Uygula
-      </button>
-
-      <button
-        class="action-btn attribute-btn"
-        id="attributes-${item.listing_id}"
-      >
-        Attributes Analizini Aç
+        ${
+          descriptionNeedsChange
+            ? "Açıklama Girişini Onayla ve Uygula"
+            : "Açıklamayı Koru"
+        }
       </button>
 
       <a
@@ -819,76 +1071,62 @@ function renderProduct(item) {
       id="result-${item.listing_id}"
     ></div>
 
-    <div
-      class="attribute-panel"
-      id="attribute-panel-${item.listing_id}"
-    >
-      Attribute analizi yükleniyor...
-    </div>
   `;
 
   products.appendChild(
     card
   );
 
-  document
-    .getElementById(
-      "title-" +
-      item.listing_id
-    )
-    .addEventListener(
-      "click",
-      function () {
-        approveTitle(
-          item.listing_id,
-          item.suggested_title
-        );
-      }
-    );
+  if (titleNeedsChange) {
+    document
+      .getElementById(
+        "title-" +
+        item.listing_id
+      )
+      .addEventListener(
+        "click",
+        function () {
+          approveTitle(
+            item.listing_id,
+            item.suggested_title
+          );
+        }
+      );
+  }
 
-  document
-    .getElementById(
-      "tags-" +
-      item.listing_id
-    )
-    .addEventListener(
-      "click",
-      function () {
-        approveTags(
-          item.listing_id,
-          tags
-        );
-      }
-    );
+  if (tagsNeedChange) {
+    document
+      .getElementById(
+        "tags-" +
+        item.listing_id
+      )
+      .addEventListener(
+        "click",
+        function () {
+          approveTags(
+            item.listing_id,
+            tags
+          );
+        }
+      );
+  }
 
-  document
-    .getElementById(
-      "description-" +
-      item.listing_id
-    )
-    .addEventListener(
-      "click",
-      function () {
-        approveDescription(
-          item.listing_id,
-          item.suggested_description_opening
-        );
-      }
-    );
-
-  document
-    .getElementById(
-      "attributes-" +
-      item.listing_id
-    )
-    .addEventListener(
-      "click",
-      function () {
-        loadAttributes(
-          item
-        );
-      }
-    );
+  if (descriptionNeedsChange) {
+    document
+      .getElementById(
+        "description-" +
+        item.listing_id
+      )
+      .addEventListener(
+        "click",
+        function () {
+          approveDescription(
+            item.listing_id,
+            item.suggested_description_opening
+          );
+        }
+      );
+  }
 }
 
 async function approveTitle(
@@ -911,6 +1149,12 @@ async function approveTitle(
   if (!confirmed) {
     return;
   }
+
+  result.className =
+    "result";
+
+  result.textContent =
+    "Başlık Etsy'ye gönderiliyor...";
 
   try {
     const response =
@@ -947,7 +1191,8 @@ async function approveTitle(
       !data.success
     ) {
       throw new Error(
-        data.error
+        data.error ||
+        "Başlık güncellenemedi."
       );
     }
 
@@ -987,7 +1232,7 @@ async function approveTags(
 
   const confirmed =
     window.confirm(
-      "Yeni etiketler:\n\n" +
+      "Aşağıdaki tagler Etsy'ye uygulanacak:\n\n" +
       preview +
       "\n\nOnaylıyor musunuz?"
     );
@@ -995,6 +1240,12 @@ async function approveTags(
   if (!confirmed) {
     return;
   }
+
+  result.className =
+    "result";
+
+  result.textContent =
+    "Tagler Etsy'ye gönderiliyor...";
 
   try {
     const response =
@@ -1031,7 +1282,8 @@ async function approveTags(
       !data.success
     ) {
       throw new Error(
-        data.error
+        data.error ||
+        "Tagler güncellenemedi."
       );
     }
 
@@ -1039,14 +1291,14 @@ async function approveTags(
       "result success";
 
     result.textContent =
-      "13 Etsy etiketi başarıyla uygulandı.";
+      "Etsy tagleri başarıyla uygulandı.";
 
   } catch (error) {
     result.className =
       "result error";
 
     result.textContent =
-      "Etiket hatası: " +
+      "Tag hatası: " +
       error.message;
   }
 }
@@ -1063,14 +1315,20 @@ async function approveDescription(
 
   const confirmed =
     window.confirm(
-      "Bu SEO giriş paragrafı mevcut açıklamanın üstüne eklenecek.\n\n" +
+      "Bu SEO giriş paragrafı mevcut açıklamanın EN ÜSTÜNE eklenecek.\n\n" +
       descriptionPrefix +
-      "\n\nMevcut açıklama korunacak.\n\nOnaylıyor musunuz?"
+      "\n\nMevcut uzun açıklaman korunacak.\n\nOnaylıyor musunuz?"
     );
 
   if (!confirmed) {
     return;
   }
+
+  result.className =
+    "result";
+
+  result.textContent =
+    "Açıklama Etsy'ye gönderiliyor...";
 
   try {
     const response =
@@ -1107,7 +1365,8 @@ async function approveDescription(
       !data.success
     ) {
       throw new Error(
-        data.error
+        data.error ||
+        "Açıklama güncellenemedi."
       );
     }
 
@@ -1115,7 +1374,7 @@ async function approveDescription(
       "result success";
 
     result.textContent =
-      "SEO açıklama girişi başarıyla uygulandı.";
+      "SEO açıklama girişi başarıyla Etsy'ye uygulandı.";
 
   } catch (error) {
     result.className =
@@ -1125,643 +1384,6 @@ async function approveDescription(
       "Açıklama hatası: " +
       error.message;
   }
-}
-
-async function loadAttributes(
-  item
-) {
-  const panel =
-    document.getElementById(
-      "attribute-panel-" +
-      item.listing_id
-    );
-
-  panel.style.display =
-    "block";
-
-  panel.innerHTML =
-    "Attribute analizi yükleniyor...";
-
-  try {
-    const response =
-      await fetch(
-        "/api/listingAttributes?listing_id=" +
-        encodeURIComponent(
-          item.listing_id
-        ),
-        {
-          cache:
-            "no-store"
-        }
-      );
-
-    const data =
-      await response.json();
-
-    if (
-      !response.ok ||
-      !data.success
-    ) {
-      throw new Error(
-        data.error
-      );
-    }
-
-    renderAttributeAnalysis(
-      panel,
-      item,
-      data
-    );
-
-  } catch (error) {
-    panel.innerHTML = `
-      <div class="error">
-        Attribute hatası:
-        ${escapeHtml(
-          error.message
-        )}
-      </div>
-    `;
-  }
-}
-
-function findPossibleValue(
-  property,
-  wantedValue
-) {
-  const values =
-    Array.isArray(
-      property.possible_values
-    )
-      ? property.possible_values
-      : [];
-
-  const wanted =
-    String(
-      wantedValue || ""
-    )
-      .toLowerCase()
-      .trim();
-
-  return values.find(
-    value =>
-      String(
-        value.name || ""
-      )
-        .toLowerCase()
-        .trim() ===
-      wanted
-  );
-}
-
-function analyzeMissingProperty(
-  property,
-  item
-) {
-  const name =
-    String(
-      property.name ||
-      property.display_name ||
-      ""
-    )
-      .toLowerCase()
-      .trim();
-
-  const colors =
-    Array.isArray(
-      item.colors
-    )
-      ? item.colors
-      : [];
-
-  const primaryColor =
-    item.color &&
-    item.color !== "Unknown"
-      ? item.color
-      : colors[0];
-
-  if (
-    name ===
-      "primary color" &&
-    primaryColor
-  ) {
-    const match =
-      findPossibleValue(
-        property,
-        primaryColor
-      );
-
-    if (match) {
-      return {
-        group:
-          "safe",
-
-        recommendation:
-          `Güvenli öneri: ${match.name}`,
-
-        reason:
-          "Ürünün mevcut başlık/renginden doğrudan tespit edildi.",
-
-        property_id:
-          Number(
-            property.property_id
-          ),
-
-        value_id:
-          Number(
-            match.value_id
-          ),
-
-        value_name:
-          String(
-            match.name
-          ),
-
-        scale_id:
-          match.scale_id ??
-          null
-      };
-    }
-  }
-
-  if (
-    name ===
-    "secondary color"
-  ) {
-    return {
-      group:
-        "leave",
-
-      recommendation:
-        "Şimdilik boş bırak.",
-
-      reason:
-        "İkinci renk kesin olarak doğrulanmadı."
-    };
-  }
-
-  if (
-    name === "occasion" ||
-    name === "holiday"
-  ) {
-    return {
-      group:
-        "leave",
-
-      recommendation:
-        "Boş bırak.",
-
-      reason:
-        "Ürün özel gün ürünü olarak doğrulanmadı."
-    };
-  }
-
-  return {
-    group:
-      "check",
-
-    recommendation:
-      "Kontrol gerekli.",
-
-    reason:
-      "Bu attribute için otomatik güvenli karar verilmedi."
-  };
-}
-
-function renderAttributeAnalysis(
-  panel,
-  item,
-  data
-) {
-  const current =
-    Array.isArray(
-      data.current_properties
-    )
-      ? data.current_properties
-      : [];
-
-  const missing =
-    Array.isArray(
-      data.missing_properties
-    )
-      ? data.missing_properties
-      : [];
-
-  const safe = [];
-  const check = [];
-  const leave = [];
-
-  for (
-    const property
-    of missing
-  ) {
-    const analysis =
-      analyzeMissingProperty(
-        property,
-        item
-      );
-
-    const row = {
-      ...property,
-      ...analysis
-    };
-
-    if (
-      analysis.group ===
-      "safe"
-    ) {
-      safe.push(row);
-    } else if (
-      analysis.group ===
-      "leave"
-    ) {
-      leave.push(row);
-    } else {
-      check.push(row);
-    }
-  }
-
-  panel.innerHTML = `
-
-    <h3>
-      Etsy Attributes Analizi
-    </h3>
-
-    <div class="attribute-summary">
-
-      <div class="attribute-count">
-        <strong>
-          ${Number(
-            data.current_count || 0
-          )}
-        </strong>
-        <br>
-        Mevcut attribute
-      </div>
-
-      <div class="attribute-count">
-        <strong>
-          ${Number(
-            data.missing_count || 0
-          )}
-        </strong>
-        <br>
-        Eksik attribute
-      </div>
-
-      <div class="attribute-count">
-        <strong>
-          ${safe.length}
-        </strong>
-        <br>
-        Güvenli öneri
-      </div>
-
-      <div class="attribute-count">
-        <strong>
-          ${check.length}
-        </strong>
-        <br>
-        Kontrol gerekli
-      </div>
-
-    </div>
-
-    <div class="attribute-group">
-
-      <h4>
-        ✅ Güvenle doldurulabilir
-      </h4>
-
-      ${
-        safe.length
-          ? safe.map(
-              property => `
-                <div class="attribute-item safe-item">
-                  <strong>
-                    ${escapeHtml(
-                      property.display_name ||
-                      property.name
-                    )}
-                  </strong>
-
-                  <br>
-
-                  ${escapeHtml(
-                    property.recommendation
-                  )}
-
-                  <br>
-
-                  <span class="small">
-                    ${escapeHtml(
-                      property.reason
-                    )}
-                  </span>
-                </div>
-              `
-            ).join("")
-          : `
-            <div class="attribute-item">
-              Güvenli öneri bulunamadı.
-            </div>
-          `
-      }
-
-      ${
-        safe.length
-          ? `
-            <button
-              class="action-btn safe-attribute-btn"
-              id="safe-attributes-${item.listing_id}"
-            >
-              Güvenli Attributes Uygula
-            </button>
-
-            <div
-              class="result"
-              id="safe-result-${item.listing_id}"
-            ></div>
-          `
-          : ""
-      }
-
-    </div>
-
-    <div class="attribute-group">
-
-      <h4>
-        ⚠️ Ürün bilgisi kontrol edilmeli
-      </h4>
-
-      ${
-        check.length
-          ? check.map(
-              property => `
-                <div class="attribute-item check-item">
-                  <strong>
-                    ${escapeHtml(
-                      property.display_name ||
-                      property.name
-                    )}
-                  </strong>
-
-                  <br>
-
-                  ${escapeHtml(
-                    property.recommendation
-                  )}
-
-                  <br>
-
-                  <span class="small">
-                    ${escapeHtml(
-                      property.reason
-                    )}
-                  </span>
-                </div>
-              `
-            ).join("")
-          : `
-            <div class="attribute-item">
-              Kontrol bekleyen alan yok.
-            </div>
-          `
-      }
-
-    </div>
-
-    <div class="attribute-group">
-
-      <h4>
-        ⏸️ Boş bırakılması daha güvenli
-      </h4>
-
-      ${
-        leave.length
-          ? leave.map(
-              property => `
-                <div class="attribute-item leave-item">
-                  <strong>
-                    ${escapeHtml(
-                      property.display_name ||
-                      property.name
-                    )}
-                  </strong>
-
-                  <br>
-
-                  ${escapeHtml(
-                    property.recommendation
-                  )}
-                </div>
-              `
-            ).join("")
-          : `
-            <div class="attribute-item">
-              Bu grupta alan yok.
-            </div>
-          `
-      }
-
-    </div>
-
-    <div class="attribute-group">
-
-      <h4>
-        📌 Etsy'de zaten bulunan attribute'lar
-      </h4>
-
-      ${
-        current.length
-          ? current.map(
-              property => `
-                <div class="attribute-item current-item">
-                  <strong>
-                    ${escapeHtml(
-                      property.property_name ||
-                      property.name ||
-                      "Attribute"
-                    )}
-                  </strong>
-
-                  <br>
-
-                  ${escapeHtml(
-                    Array.isArray(
-                      property.values
-                    )
-                      ? property.values.join(", ")
-                      : ""
-                  )}
-                </div>
-              `
-            ).join("")
-          : `
-            <div class="attribute-item">
-              Mevcut attribute bulunamadı.
-            </div>
-          `
-      }
-
-    </div>
-  `;
-
-  if (
-    safe.length
-  ) {
-    document
-      .getElementById(
-        "safe-attributes-" +
-        item.listing_id
-      )
-      .addEventListener(
-        "click",
-        function () {
-          applySafeAttributes(
-            item.listing_id,
-            safe
-          );
-        }
-      );
-  }
-}
-
-async function applySafeAttributes(
-  listingId,
-  safeAttributes
-) {
-  const result =
-    document.getElementById(
-      "safe-result-" +
-      listingId
-    );
-
-  const button =
-    document.getElementById(
-      "safe-attributes-" +
-      listingId
-    );
-
-  const preview =
-    safeAttributes
-      .map(
-        attribute =>
-          `${attribute.display_name || attribute.name}: ${attribute.value_name}`
-      )
-      .join("\n");
-
-  const confirmed =
-    window.confirm(
-      "Yalnızca aşağıdaki güvenli attribute değerleri Etsy'ye uygulanacak.\n\n" +
-      preview +
-      "\n\nDiğer attribute'lara dokunulmayacak.\n\nOnaylıyor musunuz?"
-    );
-
-  if (!confirmed) {
-    return;
-  }
-
-  button.disabled =
-    true;
-
-  result.className =
-    "result";
-
-  result.textContent =
-    "Güvenli attribute Etsy'ye gönderiliyor...";
-
-  try {
-    for (
-      const attribute
-      of safeAttributes
-    ) {
-      const response =
-        await fetch(
-          "/api/updateAttribute",
-          {
-            method:
-              "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json; charset=utf-8"
-            },
-
-            body:
-              JSON.stringify({
-                listing_id:
-                  Number(
-                    listingId
-                  ),
-
-                property_id:
-                  Number(
-                    attribute.property_id
-                  ),
-
-                value_id:
-                  Number(
-                    attribute.value_id
-                  ),
-
-                value_name:
-                  String(
-                    attribute.value_name
-                  ),
-
-                scale_id:
-                  attribute.scale_id ??
-                  null,
-
-                confirm:
-                  "YES"
-              })
-          }
-        );
-
-      const data =
-        await response.json();
-
-      if (
-        !response.ok ||
-        !data.success
-      ) {
-        throw new Error(
-          `${attribute.display_name || attribute.name}: ` +
-          (
-            data.error ||
-            "Attribute güncellenemedi."
-          ) +
-          (
-            data.details
-              ? " " +
-                JSON.stringify(
-                  data.details
-                )
-              : ""
-          )
-        );
-      }
-    }
-
-    result.className =
-      "result success";
-
-    result.textContent =
-      "Güvenli attribute başarıyla Etsy'ye uygulandı.";
-
-  } catch (error) {
-    result.className =
-      "result error";
-
-    result.textContent =
-      "Attribute hatası: " +
-      error.message;
-  }
-
-  button.disabled =
-    false;
 }
 
 loadStrategy();
