@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 
-const STRATEGY_VERSION = "HEYBELI_ETSY_V3";
+const STRATEGY_VERSION = "HEYBELI_ETSY_V3_1";
 
 function normalize(text) {
   return String(text || "")
@@ -29,29 +29,71 @@ function getProductType(title) {
   return "OTHER";
 }
 
-function getColor(title) {
+function hasThreePiece(title) {
   const t = normalize(title);
 
-  const colors = [
-    ["sage green", "Sage Green"],
-    ["mustard yellow", "Mustard Yellow"],
-    ["blush pink", "Blush Pink"],
-    ["light gray", "Light Gray"],
-    ["charcoal gray", "Charcoal Gray"],
-    ["terracotta", "Terracotta"],
-    ["white", "White"],
-    ["beige", "Beige"],
-    ["blue", "Blue"],
-    ["gray", "Gray"]
-  ];
+  return (
+    t.includes("3-piece") ||
+    t.includes("3 piece")
+  );
+}
 
-  for (const [key, value] of colors) {
-    if (t.includes(key)) {
-      return value;
+function getColors(title) {
+  const t = normalize(title);
+
+  const found = [];
+
+  const addColor = (key, value) => {
+    const index = t.indexOf(key);
+
+    if (index >= 0) {
+      found.push({
+        index,
+        value
+      });
+    }
+  };
+
+  addColor("sage green", "Sage Green");
+  addColor("blush pink", "Blush Pink");
+  addColor("light gray", "Light Gray");
+  addColor("charcoal gray", "Charcoal Gray");
+  addColor("terracotta", "Terracotta");
+  addColor("beige", "Beige");
+  addColor("white", "White");
+  addColor("blue", "Blue");
+
+  if (t.includes("mustard yellow")) {
+    addColor(
+      "mustard yellow",
+      "Mustard Yellow"
+    );
+  } else if (t.includes("mustard")) {
+    addColor(
+      "mustard",
+      "Mustard"
+    );
+  }
+
+  found.sort(
+    (a, b) => a.index - b.index
+  );
+
+  const unique = [];
+
+  for (const item of found) {
+    if (!unique.includes(item.value)) {
+      unique.push(item.value);
     }
   }
 
-  return "Unknown";
+  return unique;
+}
+
+function getPrimaryColor(title) {
+  const colors = getColors(title);
+
+  return colors[0] || "Unknown";
 }
 
 function getSize(title) {
@@ -96,10 +138,27 @@ function isWhiteBlanket(title) {
   );
 }
 
-/*
-  Trendyol / Turkey historical signal.
-  This is NOT Etsy sales history.
-*/
+function formatColorList(colors) {
+  if (!colors.length) {
+    return "";
+  }
+
+  if (colors.length === 1) {
+    return colors[0];
+  }
+
+  if (colors.length === 2) {
+    return `${colors[0]} & ${colors[1]}`;
+  }
+
+  return (
+    colors
+      .slice(0, -1)
+      .join(", ") +
+    ` & ${colors[colors.length - 1]}`
+  );
+}
+
 function getExternalMarketSignal(title) {
   if (isWhiteBlanket(title)) {
     return {
@@ -107,7 +166,7 @@ function getExternalMarketSignal(title) {
       signal: "HIGH",
       bonus: 12,
       reason:
-        "White blanket has strong prior sales history in the Turkey marketplace. This is an external-market signal, not Etsy sales history."
+        "White blanket has a strong prior sales signal in the Turkey marketplace. This is an external-market signal and is not Etsy sales history."
     };
   }
 
@@ -116,55 +175,195 @@ function getExternalMarketSignal(title) {
     signal: "UNKNOWN",
     bonus: 0,
     reason:
-      "No specific external-market product signal has been added for this listing yet."
+      "No specific Trendyol product-level signal has been added for this listing yet."
   };
 }
 
 function buildSuggestedTitle(
   productType,
-  color,
+  colors,
   currentTitle
 ) {
-  const size = getSize(currentTitle);
+  const size =
+    getSize(currentTitle);
+
+  const primaryColor =
+    colors[0] || "Unknown";
+
+  const colorList =
+    formatColorList(colors);
+
   const parts = [];
 
   if (productType === "CRIB_BEDDING") {
-    parts.push(
-      `${color} Organic Cotton Crib Bedding Set`
-    );
+    if (hasThreePiece(currentTitle)) {
+      parts.push(
+        "3-Piece Organic Cotton Crib Bedding Set"
+      );
+    } else {
+      parts.push(
+        "Organic Cotton Crib Bedding Set"
+      );
+    }
+
+    if (colorList) {
+      parts.push(colorList);
+    }
   } else if (productType === "SET") {
-    parts.push(
-      `${color} Organic Cotton Baby Blanket Set`
-    );
+    if (hasThreePiece(currentTitle)) {
+      parts.push(
+        "3-Piece Organic Cotton Baby Blanket Set"
+      );
+    } else {
+      parts.push(
+        "Organic Cotton Baby Blanket Set"
+      );
+    }
+
+    if (colorList) {
+      parts.push(colorList);
+    }
   } else {
     parts.push(
-      `${color} Organic Cotton Baby Blanket`
+      `${primaryColor} Organic Cotton Baby Blanket`
+    );
+
+    if (
+      hasBreathable(currentTitle) ||
+      hasKnit(currentTitle)
+    ) {
+      parts.push(
+        "Breathable Knit"
+      );
+    }
+  }
+
+  if (hasOekoTex(currentTitle)) {
+    parts.push(
+      "OEKO-TEX Certified"
     );
   }
 
   if (
-    hasBreathable(currentTitle) ||
-    hasKnit(currentTitle)
+    size &&
+    productType !== "CRIB_BEDDING"
   ) {
-    parts.push("Breathable Knit");
-  }
-
-  if (hasOekoTex(currentTitle)) {
-    parts.push("OEKO-TEX Certified");
-  }
-
-  if (size) {
     parts.push(size);
   }
 
   return parts.join(", ");
 }
 
-function buildTags(productType, color) {
-  let tags = [];
+function shortColor(color) {
+  const value =
+    normalize(color);
 
-  if (productType === "CRIB_BEDDING") {
-    tags = [
+  if (
+    value === "mustard yellow"
+  ) {
+    return "mustard";
+  }
+
+  if (
+    value === "charcoal gray"
+  ) {
+    return "charcoal";
+  }
+
+  if (
+    value === "light gray"
+  ) {
+    return "light gray";
+  }
+
+  if (
+    value === "sage green"
+  ) {
+    return "sage green";
+  }
+
+  if (
+    value === "blush pink"
+  ) {
+    return "blush pink";
+  }
+
+  return value;
+}
+
+function sanitizeTag(tag) {
+  let clean =
+    String(tag || "")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, " ");
+
+  clean =
+    clean.replace(
+      "mustard yellow",
+      "mustard"
+    );
+
+  clean =
+    clean.replace(
+      "charcoal gray",
+      "charcoal"
+    );
+
+  if (clean.length > 20) {
+    return null;
+  }
+
+  return clean;
+}
+
+function finalizeTags(
+  candidates,
+  fallbacks
+) {
+  const result = [];
+
+  const allTags = [
+    ...candidates,
+    ...fallbacks
+  ];
+
+  for (const tag of allTags) {
+    const clean =
+      sanitizeTag(tag);
+
+    if (!clean) {
+      continue;
+    }
+
+    if (
+      !result.includes(clean)
+    ) {
+      result.push(clean);
+    }
+
+    if (result.length === 13) {
+      break;
+    }
+  }
+
+  return result;
+}
+
+function buildTags(
+  productType,
+  colors
+) {
+  const primaryColor =
+    shortColor(
+      colors[0] || ""
+    );
+
+  if (
+    productType ===
+    "CRIB_BEDDING"
+  ) {
+    const candidates = [
       "organic crib bedding",
       "cotton crib bedding",
       "baby bedding set",
@@ -174,54 +373,101 @@ function buildTags(productType, color) {
       "cotton nursery set",
       "crib bedding set",
       "baby nursery decor",
-      "natural baby bedding",
+      "natural crib bedding",
       "soft crib bedding",
-      `${color.toLowerCase()} bedding`,
+      primaryColor
+        ? `${primaryColor} bedding`
+        : "",
       "oeko tex bedding"
     ];
-  } else if (productType === "SET") {
-    tags = [
-      "organic blanket set",
-      "baby blanket set",
-      "cotton baby set",
-      "newborn blanket set",
-      "breathable blanket",
-      "organic baby gift",
-      "nursery blanket set",
-      "cotton blanket set",
-      "baby nursery set",
-      "soft baby blanket",
-      "natural baby blanket",
-      `${color.toLowerCase()} blanket`,
-      "oeko tex blanket"
+
+    const fallbacks = [
+      "baby crib set",
+      "cotton baby bedding",
+      "nursery crib set",
+      "soft nursery bedding"
     ];
-  } else {
-    tags = [
-      "organic baby blanket",
-      "cotton baby blanket",
-      "breathable blanket",
-      "knit baby blanket",
-      "newborn blanket",
-      "nursery blanket",
-      "soft baby blanket",
-      "natural baby blanket",
-      "cotton knit blanket",
-      "baby stroller blanket",
-      "lightweight blanket",
-      `${color.toLowerCase()} blanket`,
-      "oeko tex blanket"
-    ];
+
+    return finalizeTags(
+      candidates,
+      fallbacks
+    );
   }
 
-  return tags.slice(0, 13);
+  if (productType === "SET") {
+    const candidates = [
+      "organic blanket set",
+      "baby blanket set",
+      "cotton blanket set",
+      "newborn blanket set",
+      "breathable set",
+      "nursery blanket set",
+      "soft blanket set",
+      "natural blanket set",
+      "cotton baby set",
+      "baby nursery set",
+      primaryColor
+        ? `${primaryColor} blanket`
+        : "",
+      "oeko tex blanket",
+      "baby gift set"
+    ];
+
+    const fallbacks = [
+      "baby bedding set",
+      "cotton nursery set",
+      "newborn gift set",
+      "baby textile set"
+    ];
+
+    return finalizeTags(
+      candidates,
+      fallbacks
+    );
+  }
+
+  const candidates = [
+    "organic baby blanket",
+    "cotton baby blanket",
+    "breathable blanket",
+    "knit baby blanket",
+    "newborn blanket",
+    "nursery blanket",
+    "soft baby blanket",
+    "natural baby blanket",
+    "cotton knit blanket",
+    "stroller blanket",
+    "lightweight blanket",
+    primaryColor
+      ? `${primaryColor} blanket`
+      : "",
+    "oeko tex blanket"
+  ];
+
+  const fallbacks = [
+    "baby cot blanket",
+    "baby pram blanket",
+    "soft cotton blanket",
+    "baby nursery blanket"
+  ];
+
+  return finalizeTags(
+    candidates,
+    fallbacks
+  );
 }
 
 function buildDescriptionOpening(
   productType,
-  color,
+  colors,
   currentTitle
 ) {
-  const size = getSize(currentTitle);
+  const size =
+    getSize(currentTitle);
+
+  const colorText =
+    formatColorList(colors)
+      .toLowerCase();
 
   let productName =
     "organic cotton baby blanket";
@@ -231,19 +477,29 @@ function buildDescriptionOpening(
       "organic cotton baby blanket set";
   }
 
-  if (productType === "CRIB_BEDDING") {
+  if (
+    productType ===
+    "CRIB_BEDDING"
+  ) {
     productName =
       "organic cotton crib bedding set";
   }
 
   let text =
-    `A ${color.toLowerCase()} ${productName} designed for soft, breathable everyday comfort.`;
+    `A ${colorText} ${productName} designed for soft, breathable everyday comfort.`;
 
-  if (size) {
-    text += ` Size: ${size}.`;
+  if (
+    size &&
+    productType !==
+      "CRIB_BEDDING"
+  ) {
+    text +=
+      ` Size: ${size}.`;
   }
 
-  if (hasOekoTex(currentTitle)) {
+  if (
+    hasOekoTex(currentTitle)
+  ) {
     text +=
       " Made with OEKO-TEX certified fabric.";
   }
@@ -257,21 +513,38 @@ function calculateEtsyPerformance(
 ) {
   let score = 50;
 
-  score += Math.min(views * 0.5, 25);
-  score += Math.min(favorites * 5, 25);
+  score +=
+    Math.min(
+      views * 0.5,
+      25
+    );
+
+  score +=
+    Math.min(
+      favorites * 5,
+      25
+    );
 
   return Math.min(
-    Math.round(score * 100) / 100,
+    Math.round(
+      score * 100
+    ) / 100,
     100
   );
 }
 
-function calculateOverallScore(item) {
+function calculateOverallScore(
+  item
+) {
   const views =
-    Number(item.views || 0);
+    Number(
+      item.views || 0
+    );
 
   const favorites =
-    Number(item.num_favorers || 0);
+    Number(
+      item.num_favorers || 0
+    );
 
   const etsyPerformance =
     calculateEtsyPerformance(
@@ -284,20 +557,18 @@ function calculateOverallScore(item) {
       item.title
     );
 
-  /*
-    Etsy remains the dominant signal.
-    External-market knowledge is capped.
-  */
   const score =
     Math.min(
       etsyPerformance +
-      external.bonus,
+        external.bonus,
       100
     );
 
   return {
     score:
-      Math.round(score * 100) / 100,
+      Math.round(
+        score * 100
+      ) / 100,
 
     etsy_performance_score:
       etsyPerformance,
@@ -316,16 +587,28 @@ function calculateOverallScore(item) {
   };
 }
 
-function getPriorities(item, scoreData) {
+function getPriorities(
+  item,
+  scoreData
+) {
   const views =
-    Number(item.views || 0);
+    Number(
+      item.views || 0
+    );
 
   const favorites =
-    Number(item.num_favorers || 0);
+    Number(
+      item.num_favorers || 0
+    );
 
-  let seoPriority = "MEDIUM";
-  let adPriority = "LOW";
-  let action = "MONITOR";
+  let seoPriority =
+    "MEDIUM";
+
+  let adPriority =
+    "LOW";
+
+  let action =
+    "MONITOR";
 
   let reason =
     "Continue collecting Etsy performance data before making aggressive changes.";
@@ -334,16 +617,28 @@ function getPriorities(item, scoreData) {
     favorites >= 1 &&
     views >= 5
   ) {
-    seoPriority = "HIGH";
-    adPriority = "HIGH";
-    action = "TEST_AND_SCALE";
+    seoPriority =
+      "HIGH";
+
+    adPriority =
+      "HIGH";
+
+    action =
+      "TEST_AND_SCALE";
 
     reason =
       "This listing is receiving both views and favorites on Etsy, making it a strong candidate for controlled optimization and advertising.";
-  } else if (views >= 5) {
-    seoPriority = "HIGH";
-    adPriority = "MEDIUM";
-    action = "SEO_FIRST";
+  } else if (
+    views >= 5
+  ) {
+    seoPriority =
+      "HIGH";
+
+    adPriority =
+      "MEDIUM";
+
+    action =
+      "SEO_FIRST";
 
     reason =
       "The listing receives Etsy traffic but needs stronger conversion signals before heavier ad spend.";
@@ -351,16 +646,22 @@ function getPriorities(item, scoreData) {
     views <= 2 &&
     favorites === 0
   ) {
-    seoPriority = "HIGH";
-    adPriority = "LOW";
-    action = "FIX_BEFORE_ADS";
+    seoPriority =
+      "HIGH";
+
+    adPriority =
+      "LOW";
+
+    action =
+      "FIX_BEFORE_ADS";
 
     reason =
       "Low Etsy traffic and no favorites. Improve listing clarity, tags, attributes and imagery before increasing ad spend.";
   }
 
   if (
-    scoreData.external_market_signal ===
+    scoreData
+      .external_market_signal ===
       "HIGH" &&
     views < 5
   ) {
@@ -378,19 +679,29 @@ function getPriorities(item, scoreData) {
 
 function buildStrategy(item) {
   const title =
-    String(item.title || "");
+    String(
+      item.title || ""
+    );
 
   const productType =
     getProductType(title);
 
-  const color =
-    getColor(title);
+  const colors =
+    getColors(title);
+
+  const primaryColor =
+    colors[0] ||
+    "Unknown";
 
   const views =
-    Number(item.views || 0);
+    Number(
+      item.views || 0
+    );
 
   const favorites =
-    Number(item.num_favorers || 0);
+    Number(
+      item.num_favorers || 0
+    );
 
   const price =
     Number(
@@ -405,7 +716,9 @@ function buildStrategy(item) {
       : 0;
 
   const scoreData =
-    calculateOverallScore(item);
+    calculateOverallScore(
+      item
+    );
 
   const priorities =
     getPriorities(
@@ -416,20 +729,20 @@ function buildStrategy(item) {
   const suggestedTitle =
     buildSuggestedTitle(
       productType,
-      color,
+      colors,
       title
     );
 
   const suggestedTags =
     buildTags(
       productType,
-      color
+      colors
     );
 
   const descriptionOpening =
     buildDescriptionOpening(
       productType,
-      color,
+      colors,
       title
     );
 
@@ -443,12 +756,16 @@ function buildStrategy(item) {
     product_type:
       productType,
 
-    color,
+    color:
+      primaryColor,
+
+    colors,
 
     views,
     favorites,
 
     price,
+
     currency:
       item.currency_code,
 
@@ -456,28 +773,35 @@ function buildStrategy(item) {
       "NO_CONFIRMED_SALES_HISTORY",
 
     etsy_performance_score:
-      scoreData.etsy_performance_score,
+      scoreData
+        .etsy_performance_score,
 
     external_market_source:
-      scoreData.external_market_source,
+      scoreData
+        .external_market_source,
 
     external_market_signal:
-      scoreData.external_market_signal,
+      scoreData
+        .external_market_signal,
 
     external_market_bonus:
-      scoreData.external_market_bonus,
+      scoreData
+        .external_market_bonus,
 
     external_market_reason:
-      scoreData.external_market_reason,
+      scoreData
+        .external_market_reason,
 
     overall_score:
       scoreData.score,
 
     seo_priority:
-      priorities.seoPriority,
+      priorities
+        .seoPriority,
 
     ad_priority:
-      priorities.adPriority,
+      priorities
+        .adPriority,
 
     action:
       priorities.action,
@@ -490,7 +814,9 @@ function buildStrategy(item) {
 
     title_change_needed:
       normalize(title) !==
-      normalize(suggestedTitle),
+      normalize(
+        suggestedTitle
+      ),
 
     suggested_tags:
       suggestedTags,
@@ -526,14 +852,17 @@ export default async function handler(
 ) {
   try {
     const databaseUrl =
-      process.env.DATABASE_URL;
+      process.env
+        .DATABASE_URL;
 
     if (!databaseUrl) {
-      return res.status(500).json({
-        success: false,
-        error:
-          "DATABASE_URL eksik."
-      });
+      return res
+        .status(500)
+        .json({
+          success: false,
+          error:
+            "DATABASE_URL eksik."
+        });
     }
 
     const sql =
@@ -559,147 +888,165 @@ export default async function handler(
       `;
 
     const strategy =
-      listings.map(buildStrategy);
+      listings.map(
+        buildStrategy
+      );
 
-    strategy.sort((a, b) => {
-      if (
-        b.etsy_performance_score !==
-        a.etsy_performance_score
-      ) {
-        return (
-          b.etsy_performance_score -
+    strategy.sort(
+      (a, b) => {
+        if (
+          b.etsy_performance_score !==
           a.etsy_performance_score
+        ) {
+          return (
+            b.etsy_performance_score -
+            a.etsy_performance_score
+          );
+        }
+
+        return (
+          b.overall_score -
+          a.overall_score
         );
       }
-
-      return (
-        b.overall_score -
-        a.overall_score
-      );
-    });
+    );
 
     const pendingChanges =
-      strategy.map((item) => ({
-        listing_id:
-          item.listing_id,
+      strategy.map(
+        (item) => ({
+          listing_id:
+            item.listing_id,
 
-        current_title:
-          item.current_title,
+          current_title:
+            item.current_title,
 
-        suggested_title:
-          item.suggested_title,
+          suggested_title:
+            item.suggested_title,
 
-        suggested_tags:
-          item.suggested_tags,
+          suggested_tags:
+            item.suggested_tags,
 
-        suggested_description_opening:
-          item.suggested_description_opening,
+          suggested_description_opening:
+            item.suggested_description_opening,
 
-        title_change_needed:
-          item.title_change_needed,
+          title_change_needed:
+            item.title_change_needed,
 
-        product_type:
-          item.product_type,
+          product_type:
+            item.product_type,
 
-        color:
-          item.color,
+          color:
+            item.color,
 
-        views:
-          item.views,
+          colors:
+            item.colors,
 
-        favorites:
-          item.favorites,
+          views:
+            item.views,
 
-        etsy_performance_score:
-          item.etsy_performance_score,
+          favorites:
+            item.favorites,
 
-        external_market_source:
-          item.external_market_source,
+          etsy_performance_score:
+            item.etsy_performance_score,
 
-        external_market_signal:
-          item.external_market_signal,
+          external_market_source:
+            item.external_market_source,
 
-        overall_score:
-          item.overall_score,
+          external_market_signal:
+            item.external_market_signal,
 
-        seo_priority:
-          item.seo_priority,
+          overall_score:
+            item.overall_score,
 
-        ad_priority:
-          item.ad_priority,
+          seo_priority:
+            item.seo_priority,
 
-        action:
-          item.action,
+          ad_priority:
+            item.ad_priority,
 
-        reason:
-          item.reason,
+          action:
+            item.action,
 
-        image_action:
-          item.image_action,
+          reason:
+            item.reason,
 
-        attributes_action:
-          item.attributes_action,
+          image_action:
+            item.image_action,
 
-        approval_required:
-          true,
+          attributes_action:
+            item.attributes_action,
 
-        approval_status:
-          "PENDING",
+          approval_required:
+            true,
+
+          approval_status:
+            "PENDING",
+
+          strategy_version:
+            STRATEGY_VERSION,
+
+          url:
+            item.url
+        })
+      );
+
+    return res
+      .status(200)
+      .json({
+        success: true,
+
+        system_mode:
+          "ETSY_HYBRID_STRATEGY_APPROVAL",
 
         strategy_version:
           STRATEGY_VERSION,
 
-        url:
-          item.url
-      }));
+        analyzed_count:
+          strategy.length,
 
-    return res.status(200).json({
-      success: true,
+        pending_count:
+          pendingChanges.length,
 
-      system_mode:
-        "ETSY_HYBRID_STRATEGY_APPROVAL",
+        etsy_history_note:
+          "This shop currently has no confirmed Etsy sales history in the strategy model.",
 
-      strategy_version:
-        STRATEGY_VERSION,
+        external_market_note:
+          "Trendyol Turkey performance is treated only as an external-market signal and never as Etsy sales history.",
 
-      analyzed_count:
-        strategy.length,
+        tag_rule:
+          "All suggested Etsy tags are limited to 20 characters or fewer.",
 
-      pending_count:
-        pendingChanges.length,
+        set_rule:
+          "Multi-color sets preserve all detected product colors in the suggested title.",
 
-      etsy_history_note:
-        "This shop currently has no confirmed Etsy sales history in the strategy model.",
-
-      external_market_note:
-        "Trendyol Turkey performance is treated only as an external-market signal and never as Etsy sales history.",
-
-      ranking_priority:
-        [
+        ranking_priority: [
           "Etsy live performance",
           "Etsy listing clarity and relevance",
           "Testing results",
           "External marketplace experience"
         ],
 
-      important_note:
-        "No Etsy listing is changed automatically. All changes require manual approval.",
+        important_note:
+          "No Etsy listing is changed automatically. All changes require manual approval.",
 
-      strategy,
+        strategy,
 
-      pending_changes:
-        pendingChanges
-    });
+        pending_changes:
+          pendingChanges
+      });
 
   } catch (error) {
-    return res.status(500).json({
-      success: false,
+    return res
+      .status(500)
+      .json({
+        success: false,
 
-      error:
-        "SEO strategy system failed.",
+        error:
+          "SEO strategy system failed.",
 
-      details:
-        error.message
-    });
+        details:
+          error.message
+      });
   }
 }
