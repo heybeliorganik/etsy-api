@@ -237,6 +237,11 @@
       color: #fff;
     }
 
+    .description-btn {
+      background: #2f6fed;
+      color: #fff;
+    }
+
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -380,9 +385,8 @@ async function loadStrategy() {
       </div>
 
       <div class="warning">
-        Başlık ve etiketler ayrı ayrı onaylanır.
-        Açıklama henüz otomatik değiştirilmez.
-        Trendyol verisi yalnızca dış pazar sinyali olarak kullanılır.
+        Başlık, etiket ve SEO açıklama girişi ayrı ayrı onaylanır.
+        Açıklama güncellemesi mevcut açıklamayı silmez; yeni giriş paragrafını üst tarafa ekler.
       </div>
     `;
 
@@ -520,7 +524,7 @@ function renderProduct(item) {
         Önerilen açıklama girişi
       </div>
 
-      <div class="content-box">
+      <div class="content-box suggested">
         ${escapeHtml(item.suggested_description_opening)}
       </div>
     </div>
@@ -549,7 +553,6 @@ function renderProduct(item) {
         Kaynak:
         ${escapeHtml(item.external_market_source)}
         <br>
-
         Sinyal:
         ${escapeHtml(item.external_market_signal)}
       </div>
@@ -568,6 +571,13 @@ function renderProduct(item) {
         id="tags-${item.listing_id}"
       >
         13 Etiketi Onayla ve Etsy'ye Uygula
+      </button>
+
+      <button
+        class="action-btn description-btn"
+        id="description-${item.listing_id}"
+      >
+        SEO Açıklama Girişini Onayla ve Etsy'ye Uygula
       </button>
 
       <a
@@ -605,6 +615,15 @@ function renderProduct(item) {
         tags
       );
     });
+
+  document
+    .getElementById("description-" + item.listing_id)
+    .addEventListener("click", function () {
+      approveDescription(
+        item.listing_id,
+        item.suggested_description_opening
+      );
+    });
 }
 
 async function approveTitle(listingId, suggestedTitle) {
@@ -626,26 +645,21 @@ async function approveTitle(listingId, suggestedTitle) {
   if (!confirmed) return;
 
   button.disabled = true;
-
   result.className = "result";
   result.textContent = "Başlık Etsy'ye gönderiliyor...";
 
   try {
-    const response = await fetch(
-      "/api/updateListing",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json; charset=utf-8"
-        },
-        body: JSON.stringify({
-          listing_id: Number(listingId),
-          title: suggestedTitle,
-          confirm: "YES"
-        })
-      }
-    );
+    const response = await fetch("/api/updateListing", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      },
+      body: JSON.stringify({
+        listing_id: Number(listingId),
+        title: suggestedTitle,
+        confirm: "YES"
+      })
+    });
 
     const data = await response.json();
 
@@ -662,15 +676,13 @@ async function approveTitle(listingId, suggestedTitle) {
     result.textContent =
       "Başlık başarıyla Etsy'ye uygulandı.";
 
-    button.disabled = false;
-
   } catch (error) {
-    button.disabled = false;
-
     result.className = "result error";
     result.textContent =
       "Başlık hatası: " + error.message;
   }
+
+  button.disabled = false;
 }
 
 async function approveTags(listingId, tags) {
@@ -684,15 +696,12 @@ async function approveTags(listingId, tags) {
 
   if (!Array.isArray(tags) || tags.length === 0) {
     result.className = "result error";
-    result.textContent =
-      "Uygulanacak etiket bulunamadı.";
+    result.textContent = "Uygulanacak etiket bulunamadı.";
     return;
   }
 
   const tagText = tags
-    .map((tag, index) =>
-      `${index + 1}. ${tag}`
-    )
+    .map((tag, index) => `${index + 1}. ${tag}`)
     .join("\n");
 
   const confirmed = window.confirm(
@@ -705,27 +714,21 @@ async function approveTags(listingId, tags) {
   if (!confirmed) return;
 
   button.disabled = true;
-
   result.className = "result";
-  result.textContent =
-    "Etiketler Etsy'ye gönderiliyor...";
+  result.textContent = "Etiketler Etsy'ye gönderiliyor...";
 
   try {
-    const response = await fetch(
-      "/api/updateListing",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json; charset=utf-8"
-        },
-        body: JSON.stringify({
-          listing_id: Number(listingId),
-          tags: tags,
-          confirm: "YES"
-        })
-      }
-    );
+    const response = await fetch("/api/updateListing", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      },
+      body: JSON.stringify({
+        listing_id: Number(listingId),
+        tags: tags,
+        confirm: "YES"
+      })
+    });
 
     const data = await response.json();
 
@@ -742,15 +745,88 @@ async function approveTags(listingId, tags) {
     result.textContent =
       "13 Etsy etiketi başarıyla uygulandı.";
 
-    button.disabled = false;
-
   } catch (error) {
-    button.disabled = false;
-
     result.className = "result error";
     result.textContent =
       "Etiket hatası: " + error.message;
   }
+
+  button.disabled = false;
+}
+
+async function approveDescription(
+  listingId,
+  descriptionPrefix
+) {
+  const result = document.getElementById(
+    "result-" + listingId
+  );
+
+  const button = document.getElementById(
+    "description-" + listingId
+  );
+
+  if (
+    !descriptionPrefix ||
+    !String(descriptionPrefix).trim()
+  ) {
+    result.className = "result error";
+    result.textContent =
+      "Uygulanacak açıklama girişi bulunamadı.";
+    return;
+  }
+
+  const confirmed = window.confirm(
+    "Bu işlem aşağıdaki SEO giriş paragrafını mevcut Etsy açıklamasının EN ÜSTÜNE ekleyecek.\n\n" +
+    "Mevcut uzun açıklama korunacak.\n\n" +
+    "Yeni giriş:\n\n" +
+    descriptionPrefix +
+    "\n\nOnaylıyor musunuz?"
+  );
+
+  if (!confirmed) return;
+
+  button.disabled = true;
+
+  result.className = "result";
+  result.textContent =
+    "SEO açıklama girişi Etsy'ye gönderiliyor...";
+
+  try {
+    const response = await fetch("/api/updateListing", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      },
+      body: JSON.stringify({
+        listing_id: Number(listingId),
+        description_prefix: descriptionPrefix,
+        confirm: "YES"
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.error +
+        (data.details
+          ? " " + JSON.stringify(data.details)
+          : "")
+      );
+    }
+
+    result.className = "result success";
+    result.textContent =
+      "SEO açıklama girişi başarıyla eklendi. Mevcut açıklama korundu.";
+
+  } catch (error) {
+    result.className = "result error";
+    result.textContent =
+      "Açıklama hatası: " + error.message;
+  }
+
+  button.disabled = false;
 }
 
 loadStrategy();
