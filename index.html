@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Heybeli Etsy Manager V3</title>
+  <title>Heybeli Etsy Manager V3.1</title>
 
   <style>
     * {
@@ -19,8 +18,8 @@
     }
 
     header {
-      background: #ffffff;
-      border-bottom: 1px solid #dddddd;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
       padding: 22px 28px;
       position: sticky;
       top: 0;
@@ -43,7 +42,7 @@
 
     .subtitle {
       margin-top: 5px;
-      color: #666666;
+      color: #666;
       font-size: 14px;
     }
 
@@ -51,8 +50,8 @@
       border: 0;
       border-radius: 8px;
       padding: 10px 16px;
-      background: #222222;
-      color: white;
+      background: #222;
+      color: #fff;
       cursor: pointer;
     }
 
@@ -63,8 +62,8 @@
     }
 
     .summary {
-      background: white;
-      border: 1px solid #dddddd;
+      background: #fff;
+      border: 1px solid #ddd;
       border-radius: 14px;
       padding: 20px;
       margin-bottom: 22px;
@@ -91,12 +90,20 @@
 
     .small {
       font-size: 13px;
-      color: #666666;
+      color: #666;
+    }
+
+    .warning {
+      background: #fff8df;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-size: 13px;
     }
 
     .product {
-      background: white;
-      border: 1px solid #dddddd;
+      background: #fff;
+      border: 1px solid #ddd;
       border-radius: 14px;
       padding: 20px;
       margin-bottom: 20px;
@@ -105,7 +112,6 @@
     .product-top {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
       gap: 15px;
       flex-wrap: wrap;
     }
@@ -117,7 +123,7 @@
 
     .listing-id {
       font-size: 12px;
-      color: #777777;
+      color: #777;
     }
 
     .badges {
@@ -128,10 +134,9 @@
     }
 
     .badge {
-      display: inline-block;
       padding: 7px 11px;
       border-radius: 999px;
-      background: #eeeeee;
+      background: #eee;
       font-size: 12px;
       font-weight: bold;
     }
@@ -163,7 +168,7 @@
 
     .metric-label {
       font-size: 12px;
-      color: #777777;
+      color: #777;
     }
 
     .metric-value {
@@ -191,7 +196,7 @@
     }
 
     .suggested {
-      border-left: 4px solid #222222;
+      border-left: 4px solid #222;
     }
 
     .tags {
@@ -201,7 +206,7 @@
     }
 
     .tag {
-      background: #eeeeee;
+      background: #eee;
       border-radius: 999px;
       padding: 6px 9px;
       font-size: 12px;
@@ -214,9 +219,7 @@
       margin-top: 20px;
     }
 
-    .apply-btn {
-      background: #111111;
-      color: white;
+    button.action-btn {
       border: 0;
       border-radius: 8px;
       padding: 11px 17px;
@@ -224,7 +227,17 @@
       font-weight: bold;
     }
 
-    .apply-btn:disabled {
+    .title-btn {
+      background: #111;
+      color: #fff;
+    }
+
+    .tag-btn {
+      background: #f1641e;
+      color: #fff;
+    }
+
+    button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
@@ -232,8 +245,8 @@
     .etsy-link {
       display: inline-block;
       text-decoration: none;
-      border: 1px solid #222222;
-      color: #222222;
+      border: 1px solid #222;
+      color: #222;
       border-radius: 8px;
       padding: 10px 16px;
     }
@@ -250,14 +263,6 @@
 
     .error {
       color: #b00020;
-    }
-
-    .warning {
-      background: #fff8df;
-      padding: 12px;
-      border-radius: 8px;
-      margin-top: 12px;
-      font-size: 13px;
     }
 
     @media (max-width: 600px) {
@@ -285,37 +290,27 @@
 <header>
   <div class="header-row">
     <div>
-      <h1>Heybeli Etsy Manager V3</h1>
-
+      <h1>Heybeli Etsy Manager V3.1</h1>
       <div class="subtitle">
         Etsy canlı performansı + SEO + Trendyol dış pazar sinyali
       </div>
     </div>
 
-    <button
-      class="refresh-btn"
-      onclick="loadStrategy()"
-    >
+    <button class="refresh-btn" onclick="loadStrategy()">
       Verileri Yenile
     </button>
   </div>
 </header>
 
 <main>
-
-  <div
-    class="summary"
-    id="summary"
-  >
+  <div class="summary" id="summary">
     Veriler yükleniyor...
   </div>
 
   <div id="products"></div>
-
 </main>
 
 <script>
-
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -326,57 +321,32 @@ function escapeHtml(value) {
 }
 
 function priorityClass(value) {
-  const v =
-    String(value || "").toUpperCase();
+  const v = String(value || "").toUpperCase();
 
-  if (v === "HIGH") {
-    return "badge-high";
-  }
-
-  if (v === "MEDIUM") {
-    return "badge-medium";
-  }
-
-  if (v === "LOW") {
-    return "badge-low";
-  }
+  if (v === "HIGH") return "badge-high";
+  if (v === "MEDIUM") return "badge-medium";
+  if (v === "LOW") return "badge-low";
 
   return "";
 }
 
 async function loadStrategy() {
+  const summary = document.getElementById("summary");
+  const products = document.getElementById("products");
 
-  const summary =
-    document.getElementById("summary");
-
-  const products =
-    document.getElementById("products");
-
-  summary.innerHTML =
-    "Veriler yükleniyor...";
-
+  summary.innerHTML = "Veriler yükleniyor...";
   products.innerHTML = "";
 
   try {
+    const response = await fetch("/api/seoStrategy", {
+      cache: "no-store"
+    });
 
-    const response =
-      await fetch(
-        "/api/seoStrategy",
-        {
-          cache: "no-store"
-        }
-      );
+    const data = await response.json();
 
-    const data =
-      await response.json();
-
-    if (
-      !response.ok ||
-      !data.success
-    ) {
+    if (!response.ok || !data.success) {
       throw new Error(
-        data.error ||
-        "Strateji verileri alınamadı."
+        data.error || "Strateji verileri alınamadı."
       );
     }
 
@@ -384,261 +354,154 @@ async function loadStrategy() {
       <strong>Sistem aktif ✅</strong>
 
       <div class="summary-grid">
-
         <div class="summary-box">
-          <div class="small">
-            Strateji sürümü
-          </div>
-          <div>
-            ${escapeHtml(
-              data.strategy_version
-            )}
-          </div>
+          <div class="small">Strateji sürümü</div>
+          <div>${escapeHtml(data.strategy_version)}</div>
         </div>
 
         <div class="summary-box">
-          <div class="small">
-            Analiz edilen ürün
-          </div>
+          <div class="small">Analiz edilen ürün</div>
           <div class="summary-number">
-            ${Number(
-              data.analyzed_count || 0
-            )}
+            ${Number(data.analyzed_count || 0)}
           </div>
         </div>
 
         <div class="summary-box">
-          <div class="small">
-            Onay bekleyen
-          </div>
+          <div class="small">Onay bekleyen</div>
           <div class="summary-number">
-            ${Number(
-              data.pending_count || 0
-            )}
+            ${Number(data.pending_count || 0)}
           </div>
         </div>
 
         <div class="summary-box">
-          <div class="small">
-            Sistem modu
-          </div>
-          <div>
-            ${escapeHtml(
-              data.system_mode
-            )}
-          </div>
+          <div class="small">Sistem modu</div>
+          <div>${escapeHtml(data.system_mode)}</div>
         </div>
-
       </div>
 
       <div class="warning">
-        Etsy performansı ana sinyaldir.
-        Trendyol Türkiye verisi yalnızca
-        dış pazar referansı olarak kullanılır.
-        Hiçbir değişiklik sen onaylamadan
-        Etsy'ye uygulanmaz.
+        Başlık ve etiketler ayrı ayrı onaylanır.
+        Açıklama henüz otomatik değiştirilmez.
+        Trendyol verisi yalnızca dış pazar sinyali olarak kullanılır.
       </div>
     `;
 
-    const items =
-      data.pending_changes || [];
-
-    for (const item of items) {
+    for (const item of data.pending_changes || []) {
       renderProduct(item);
     }
 
   } catch (error) {
-
-    summary.innerHTML =
-      `<span class="error">
-        Hata: ${escapeHtml(
-          error.message
-        )}
-      </span>`;
+    summary.innerHTML = `
+      <span class="error">
+        Hata: ${escapeHtml(error.message)}
+      </span>
+    `;
   }
 }
 
 function renderProduct(item) {
-
-  const products =
-    document.getElementById("products");
-
-  const card =
-    document.createElement("div");
+  const products = document.getElementById("products");
+  const card = document.createElement("div");
 
   card.className = "product";
 
-  const tags =
-    Array.isArray(item.suggested_tags)
-      ? item.suggested_tags
-      : [];
+  const tags = Array.isArray(item.suggested_tags)
+    ? item.suggested_tags
+    : [];
 
   card.innerHTML = `
-
     <div class="product-top">
-
       <div>
         <h2>
           ${escapeHtml(item.color)}
           -
-          ${escapeHtml(
-            item.product_type
-          )}
+          ${escapeHtml(item.product_type)}
         </h2>
 
         <div class="listing-id">
-          Listing ID:
-          ${escapeHtml(
-            item.listing_id
-          )}
+          Listing ID: ${escapeHtml(item.listing_id)}
         </div>
       </div>
 
       <div>
-        ${item.external_market_signal === "HIGH"
-          ? '<span class="badge badge-high">Trendyol sinyali: HIGH</span>'
-          : '<span class="badge">Trendyol sinyali: UNKNOWN</span>'
+        ${
+          item.external_market_signal === "HIGH"
+            ? '<span class="badge badge-high">Trendyol sinyali: HIGH</span>'
+            : '<span class="badge">Trendyol sinyali: UNKNOWN</span>'
         }
       </div>
-
     </div>
 
     <div class="badges">
-
-      <span
-        class="badge ${priorityClass(
-          item.seo_priority
-        )}"
-      >
-        SEO:
-        ${escapeHtml(
-          item.seo_priority
-        )}
+      <span class="badge ${priorityClass(item.seo_priority)}">
+        SEO: ${escapeHtml(item.seo_priority)}
       </span>
 
-      <span
-        class="badge ${priorityClass(
-          item.ad_priority
-        )}"
-      >
-        Reklam:
-        ${escapeHtml(
-          item.ad_priority
-        )}
+      <span class="badge ${priorityClass(item.ad_priority)}">
+        Reklam: ${escapeHtml(item.ad_priority)}
       </span>
 
       <span class="badge">
-        Aksiyon:
-        ${escapeHtml(
-          item.action
-        )}
+        Aksiyon: ${escapeHtml(item.action)}
       </span>
 
       <span class="badge">
-        Durum:
-        ${escapeHtml(
-          item.approval_status
-        )}
+        Durum: ${escapeHtml(item.approval_status)}
       </span>
-
     </div>
 
     <div class="metrics">
-
       <div class="metric">
-        <div class="metric-label">
-          Etsy performans
-        </div>
-
+        <div class="metric-label">Etsy performans</div>
         <div class="metric-value">
-          ${Number(
-            item.etsy_performance_score || 0
-          ).toFixed(1)}
+          ${Number(item.etsy_performance_score || 0).toFixed(1)}
         </div>
       </div>
 
       <div class="metric">
-        <div class="metric-label">
-          Genel skor
-        </div>
-
+        <div class="metric-label">Genel skor</div>
         <div class="metric-value">
-          ${Number(
-            item.overall_score || 0
-          ).toFixed(1)}
+          ${Number(item.overall_score || 0).toFixed(1)}
         </div>
       </div>
 
       <div class="metric">
-        <div class="metric-label">
-          Görüntülenme
-        </div>
-
+        <div class="metric-label">Görüntülenme</div>
         <div class="metric-value">
-          ${Number(
-            item.views || 0
-          )}
+          ${Number(item.views || 0)}
         </div>
       </div>
 
       <div class="metric">
-        <div class="metric-label">
-          Favori
-        </div>
-
+        <div class="metric-label">Favori</div>
         <div class="metric-value">
-          ${Number(
-            item.favorites || 0
-          )}
+          ${Number(item.favorites || 0)}
         </div>
       </div>
-
     </div>
 
     <div class="section">
-
-      <div class="section-title">
-        Mevcut başlık
-      </div>
-
+      <div class="section-title">Mevcut başlık</div>
       <div class="content-box">
-        ${escapeHtml(
-          item.current_title
-        )}
+        ${escapeHtml(item.current_title)}
       </div>
-
     </div>
 
     <div class="section">
-
-      <div class="section-title">
-        Önerilen Etsy başlığı
-      </div>
-
+      <div class="section-title">Önerilen Etsy başlığı</div>
       <div class="content-box suggested">
-        ${escapeHtml(
-          item.suggested_title
-        )}
+        ${escapeHtml(item.suggested_title)}
       </div>
-
     </div>
 
     <div class="section">
-
-      <div class="section-title">
-        Neden?
-      </div>
-
+      <div class="section-title">Neden?</div>
       <div class="content-box">
-        ${escapeHtml(
-          item.reason
-        )}
+        ${escapeHtml(item.reason)}
       </div>
-
     </div>
 
     <div class="section">
-
       <div class="section-title">
         Önerilen 13 Etsy etiketi
       </div>
@@ -650,92 +513,71 @@ function renderProduct(item) {
           </span>
         `).join("")}
       </div>
-
     </div>
 
     <div class="section">
-
       <div class="section-title">
         Önerilen açıklama girişi
       </div>
 
       <div class="content-box">
-        ${escapeHtml(
-          item.suggested_description_opening
-        )}
+        ${escapeHtml(item.suggested_description_opening)}
       </div>
-
     </div>
 
     <div class="section">
-
-      <div class="section-title">
-        Görsel aksiyonu
-      </div>
-
+      <div class="section-title">Görsel aksiyonu</div>
       <div class="content-box">
-        ${escapeHtml(
-          item.image_action
-        )}
+        ${escapeHtml(item.image_action)}
       </div>
-
     </div>
 
     <div class="section">
-
       <div class="section-title">
         Etsy Attributes aksiyonu
       </div>
 
       <div class="content-box">
-        ${escapeHtml(
-          item.attributes_action
-        )}
+        ${escapeHtml(item.attributes_action)}
       </div>
-
     </div>
 
     <div class="section">
-
-      <div class="section-title">
-        Dış pazar sinyali
-      </div>
+      <div class="section-title">Dış pazar sinyali</div>
 
       <div class="content-box">
         Kaynak:
-        ${escapeHtml(
-          item.external_market_source
-        )}
+        ${escapeHtml(item.external_market_source)}
         <br>
 
         Sinyal:
-        ${escapeHtml(
-          item.external_market_signal
-        )}
+        ${escapeHtml(item.external_market_signal)}
       </div>
-
     </div>
 
     <div class="actions">
-
       <button
-        class="apply-btn"
-        id="apply-${item.listing_id}"
+        class="action-btn title-btn"
+        id="title-${item.listing_id}"
       >
         Başlığı Onayla ve Etsy'ye Uygula
       </button>
 
+      <button
+        class="action-btn tag-btn"
+        id="tags-${item.listing_id}"
+      >
+        13 Etiketi Onayla ve Etsy'ye Uygula
+      </button>
+
       <a
         class="etsy-link"
-        href="${escapeHtml(
-          item.url
-        )}"
+        href="${escapeHtml(item.url)}"
         target="_blank"
         rel="noopener noreferrer"
       >
         Etsy Ürününü Aç
       </a>
-
     </div>
 
     <div
@@ -746,145 +588,172 @@ function renderProduct(item) {
 
   products.appendChild(card);
 
-  const button =
-    document.getElementById(
-      "apply-" + item.listing_id
-    );
-
-  button.addEventListener(
-    "click",
-    function () {
-
+  document
+    .getElementById("title-" + item.listing_id)
+    .addEventListener("click", function () {
       approveTitle(
         item.listing_id,
         item.suggested_title
       );
-    }
-  );
+    });
+
+  document
+    .getElementById("tags-" + item.listing_id)
+    .addEventListener("click", function () {
+      approveTags(
+        item.listing_id,
+        tags
+      );
+    });
 }
 
-async function approveTitle(
-  listingId,
-  suggestedTitle
-) {
+async function approveTitle(listingId, suggestedTitle) {
+  const result = document.getElementById(
+    "result-" + listingId
+  );
 
-  const result =
-    document.getElementById(
-      "result-" + listingId
-    );
+  const button = document.getElementById(
+    "title-" + listingId
+  );
 
-  const button =
-    document.getElementById(
-      "apply-" + listingId
-    );
+  const confirmed = window.confirm(
+    "Bu işlem Etsy'deki gerçek ürün başlığını değiştirecek.\n\n" +
+    "Yeni başlık:\n\n" +
+    suggestedTitle +
+    "\n\nOnaylıyor musunuz?"
+  );
 
-  const confirmed =
-    window.confirm(
-      "Bu işlem Etsy'deki gerçek ürün başlığını değiştirecek.\n\n" +
-      "Yeni başlık:\n\n" +
-      suggestedTitle +
-      "\n\nOnaylıyor musunuz?"
-    );
-
-  if (!confirmed) {
-    return;
-  }
+  if (!confirmed) return;
 
   button.disabled = true;
 
-  result.className =
-    "result";
-
-  result.textContent =
-    "Etsy güncelleniyor...";
+  result.className = "result";
+  result.textContent = "Başlık Etsy'ye gönderiliyor...";
 
   try {
+    const response = await fetch(
+      "/api/updateListing",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json; charset=utf-8"
+        },
+        body: JSON.stringify({
+          listing_id: Number(listingId),
+          title: suggestedTitle,
+          confirm: "YES"
+        })
+      }
+    );
 
-    const response =
-      await fetch(
-        "/api/updateListing",
-        {
-          method: "POST",
+    const data = await response.json();
 
-          headers: {
-            "Content-Type":
-              "application/json; charset=utf-8"
-          },
-
-          body: JSON.stringify({
-            listing_id:
-              Number(listingId),
-
-            title:
-              suggestedTitle,
-
-            confirm:
-              "YES"
-          })
-        }
-      );
-
-    const data =
-      await response.json();
-
-    if (
-      !response.ok ||
-      !data.success
-    ) {
+    if (!response.ok || !data.success) {
       throw new Error(
         data.error +
-        (
-          data.details
-            ? " " +
-              JSON.stringify(
-                data.details
-              )
-            : ""
-        )
+        (data.details
+          ? " " + JSON.stringify(data.details)
+          : "")
       );
     }
 
-    result.className =
-      "result success";
-
+    result.className = "result success";
     result.textContent =
-      "Başarıyla Etsy'ye uygulandı. Ürün verileri yenileniyor...";
-
-    try {
-
-      await fetch(
-        "/api/syncListings",
-        {
-          cache: "no-store"
-        }
-      );
-
-      setTimeout(
-        loadStrategy,
-        1200
-      );
-
-    } catch (syncError) {
-
-      result.textContent =
-        "Başlık Etsy'ye başarıyla uygulandı. Veri senkronizasyonu bir sonraki otomatik çalışmada güncellenecek.";
-    }
-
-  } catch (error) {
+      "Başlık başarıyla Etsy'ye uygulandı.";
 
     button.disabled = false;
 
-    result.className =
-      "result error";
+  } catch (error) {
+    button.disabled = false;
 
+    result.className = "result error";
     result.textContent =
-      "Hata: " +
-      error.message;
+      "Başlık hatası: " + error.message;
+  }
+}
+
+async function approveTags(listingId, tags) {
+  const result = document.getElementById(
+    "result-" + listingId
+  );
+
+  const button = document.getElementById(
+    "tags-" + listingId
+  );
+
+  if (!Array.isArray(tags) || tags.length === 0) {
+    result.className = "result error";
+    result.textContent =
+      "Uygulanacak etiket bulunamadı.";
+    return;
+  }
+
+  const tagText = tags
+    .map((tag, index) =>
+      `${index + 1}. ${tag}`
+    )
+    .join("\n");
+
+  const confirmed = window.confirm(
+    "Bu işlem Etsy'deki gerçek ürün etiketlerini değiştirecek.\n\n" +
+    "Yeni etiketler:\n\n" +
+    tagText +
+    "\n\nOnaylıyor musunuz?"
+  );
+
+  if (!confirmed) return;
+
+  button.disabled = true;
+
+  result.className = "result";
+  result.textContent =
+    "Etiketler Etsy'ye gönderiliyor...";
+
+  try {
+    const response = await fetch(
+      "/api/updateListing",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json; charset=utf-8"
+        },
+        body: JSON.stringify({
+          listing_id: Number(listingId),
+          tags: tags,
+          confirm: "YES"
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.error +
+        (data.details
+          ? " " + JSON.stringify(data.details)
+          : "")
+      );
+    }
+
+    result.className = "result success";
+    result.textContent =
+      "13 Etsy etiketi başarıyla uygulandı.";
+
+    button.disabled = false;
+
+  } catch (error) {
+    button.disabled = false;
+
+    result.className = "result error";
+    result.textContent =
+      "Etiket hatası: " + error.message;
   }
 }
 
 loadStrategy();
-
 </script>
 
 </body>
