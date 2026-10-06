@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Heybeli Etsy Manager V4</title>
+  <title>Heybeli Etsy Manager V4.1</title>
 
   <style>
     * {
@@ -266,14 +266,6 @@
       background: #f3e4e4;
     }
 
-    .keep {
-      background: #e7f5ea;
-    }
-
-    .change {
-      background: #fff1cf;
-    }
-
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -306,6 +298,16 @@
 
     .description-btn {
       background: #2f6fed;
+      color: white;
+    }
+
+    .ads-btn {
+      background: #6f42c1;
+      color: white;
+    }
+
+    .ads-disabled {
+      background: #bbb;
       color: white;
     }
 
@@ -381,8 +383,7 @@
 <header>
   <div class="header-row">
     <div>
-      <h1>Heybeli Etsy Manager V4</h1>
-
+      <h1>Heybeli Etsy Manager V4.1</h1>
       <div class="subtitle">
         Etsy karar motoru • SEO • Reklam • Başlık • 13 Tag • Açıklama
       </div>
@@ -398,7 +399,6 @@
 </header>
 
 <main>
-
   <div
     class="summary"
     id="summary"
@@ -407,10 +407,12 @@
   </div>
 
   <div id="products"></div>
-
 </main>
 
 <script>
+
+const ETSY_ADS_URL =
+  "https://www.etsy.com/your/shops/me/advertising";
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -517,18 +519,48 @@ function decisionText(value) {
       "Değişiklikleri hazırla",
 
     REVIEW_AND_UPDATE:
-      "Kontrol et ve güncelle"
+      "Kontrol et ve güncelle",
+
+    MONITOR:
+      "Takip et",
+
+    REVIEW_MAIN_IMAGE:
+      "Ana görseli kontrol et"
   };
 
   return map[v] || value || "-";
 }
 
-function yesNoChange(
-  changeNeeded
-) {
+function yesNoChange(changeNeeded) {
   return changeNeeded
     ? "Güncelleme öneriliyor"
     : "Koru";
+}
+
+function getAdButton(item) {
+  const action =
+    String(
+      item.today_action || ""
+    ).toUpperCase();
+
+  if (action === "TEST_ADS") {
+    return {
+      enabled: true,
+      text: "Küçük Bütçeyle Reklam Testi"
+    };
+  }
+
+  if (action === "PROTECT") {
+    return {
+      enabled: true,
+      text: "Kontrollü Reklam Testi"
+    };
+  }
+
+  return {
+    enabled: false,
+    text: "Şimdilik Reklam Verme"
+  };
 }
 
 async function loadStrategy() {
@@ -543,7 +575,7 @@ async function loadStrategy() {
     );
 
   summary.innerHTML =
-    "V4 karar motoru verileri yükleniyor...";
+    "V4.1 karar motoru verileri yükleniyor...";
 
   products.innerHTML = "";
 
@@ -565,14 +597,13 @@ async function loadStrategy() {
     ) {
       throw new Error(
         data.error ||
-        "V4 strateji verileri alınamadı."
+        "Strateji verileri alınamadı."
       );
     }
 
     summary.innerHTML = `
-
       <strong>
-        Heybeli Etsy V4 aktif ✅
+        Heybeli Etsy V4.1 aktif ✅
       </strong>
 
       <div class="summary-grid">
@@ -628,12 +659,9 @@ async function loadStrategy() {
       </div>
 
       <div class="notice">
-        V4 karar motoru Etsy'nin gizli algoritmasını bildiğini iddia etmez.
-        Puanlar; mağazanın canlı verileri, görüntülenme, favori,
-        listing yaşı ve bizim kontrollü test kurallarımız kullanılarak
-        oluşturulan karar destek sistemidir.
-        Hiçbir başlık, tag veya açıklama otomatik değiştirilmez.
-        Son onay her zaman sende kalır.
+        Reklam butonu Etsy Ads'i otomatik olarak açmaz.
+        Panel hangi ürünün reklam testine uygun olduğunu seçer;
+        son reklam açma işlemi Etsy Ads ekranında senin onayınla yapılır.
       </div>
     `;
 
@@ -696,6 +724,9 @@ function renderProduct(item) {
       item.description_change_needed
     );
 
+  const adButton =
+    getAdButton(item);
+
   card.innerHTML = `
 
     <div class="product-top">
@@ -720,7 +751,6 @@ function renderProduct(item) {
       </div>
 
       <div class="badges">
-
         <span class="badge ${priorityClass(
           item.seo_priority
         )}">
@@ -738,7 +768,6 @@ function renderProduct(item) {
             item.ad_priority
           )}
         </span>
-
       </div>
 
     </div>
@@ -1053,6 +1082,24 @@ function renderProduct(item) {
         }
       </button>
 
+      <button
+        class="action-btn ${
+          adButton.enabled
+            ? "ads-btn"
+            : "ads-disabled"
+        }"
+        id="ads-${item.listing_id}"
+        ${
+          adButton.enabled
+            ? ""
+            : "disabled"
+        }
+      >
+        ${escapeHtml(
+          adButton.text
+        )}
+      </button>
+
       <a
         class="etsy-link"
         href="${escapeHtml(
@@ -1073,9 +1120,7 @@ function renderProduct(item) {
 
   `;
 
-  products.appendChild(
-    card
-  );
+  products.appendChild(card);
 
   if (titleNeedsChange) {
     document
@@ -1127,6 +1172,47 @@ function renderProduct(item) {
         }
       );
   }
+
+  if (adButton.enabled) {
+    document
+      .getElementById(
+        "ads-" +
+        item.listing_id
+      )
+      .addEventListener(
+        "click",
+        function () {
+          openAds(
+            item
+          );
+        }
+      );
+  }
+}
+
+function openAds(item) {
+  const confirmed =
+    window.confirm(
+      "Bu ürün reklam testi için uygun görünüyor.\n\n" +
+      "Ürün: " +
+      item.color +
+      " - " +
+      item.product_type +
+      "\n\n" +
+      "Etsy Ads ekranı açılacak.\n" +
+      "Reklamı Etsy tarafında yalnızca bu ürün için sen açacaksın.\n\n" +
+      "Devam edilsin mi?"
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  window.open(
+    ETSY_ADS_URL,
+    "_blank",
+    "noopener,noreferrer"
+  );
 }
 
 async function approveTitle(
